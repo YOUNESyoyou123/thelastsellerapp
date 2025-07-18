@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import loginAnimation from "../assets/My-Store-animated.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
 import Lottie from "lottie-react";
+
 
 const translations = {
   en: {
@@ -74,10 +75,68 @@ function Icon({
   );
 }
 
+const inscription = async()=>{  
+  try {
+    const result = await fetch("")
+  } catch (error) {
+    
+  }
+}
+
+
+const OPENCAGE_API_KEY = "5b93249038624a97bd48f83e49bea550";
+
 const Register = () => {
+  const [coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [locationName, setLocationName] = useState<string>("📡 Detecting...");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setErrorMsg("❌ Geolocation not supported.");
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoords({ latitude, longitude });
+
+        // ✅ Fetch city + country
+        try {
+          const response = await fetch(
+            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
+          );
+          const data = await response.json();
+
+          if (data.results?.length > 0) {
+            const comp = data.results[0].components;
+            const city =
+              comp.city || comp.town || comp.village || "Unknown city";
+            const country = comp.country || "Unknown country";
+
+            setLocationName(`${city}, ${country}`);
+          } else {
+            setLocationName("❓ Unknown location");
+          }
+        } catch (err) {
+          console.error("Error fetching location name:", err);
+          setLocationName("❌ Error fetching location");
+        }
+      },
+      (error) => {
+        setErrorMsg(`❌ ${error.message}`);
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
   const [lang, setLang] = useState<"en" | "ar">("en");
   const t = translations[lang];
-
   const [formData, setFormData] = useState({
     fullName: "",
     shopName: "",

@@ -3,7 +3,7 @@ import loginAnimation from "../assets/Wallet animation.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
 import Lottie from "lottie-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // ✅ ajouter en haut
 
 // ✅ Dictionnaire de traduction
 const translations = {
@@ -79,7 +79,7 @@ function Icon({
   );
 }
 
-const Login = () => {
+const Loginseller = () => {
   const [lang, setLang] = useState<"en" | "ar">("en");
   const t = translations[lang];
 
@@ -321,7 +321,7 @@ const Login = () => {
             </button>
 
             <Link
-              to="/registerclient" // ✅ redirige vers la page d'inscription vendeur
+              to="/registerseller" // ✅ redirige vers la page d'inscription vendeur
               className="block w-full mt-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded-lg shadow-sm text-center flex items-center justify-center gap-2 transition duration-200"
             >
               <Icon name="UserPlus" size={18} />
@@ -348,4 +348,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Loginseller;

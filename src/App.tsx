@@ -4,16 +4,28 @@ import viteLogo from "/vite.svg";
 import Login from "./component/Login";
 import RegisterChoice from "./component/RegisterChoice";
 import Register from "./component/Register1";
+import { Routes, Route } from "react-router-dom"; // ✅ PAS BrowserRouter ici
+
 import Registerclient from "./component/Register2";
 import MobileFooter from "./component/Footer";
 import Navbar from "./component/NavBar";
 import Mainpage from "./component/Mainpage";
 import GestionStore from "./component/GestionStore";
 import Settings from "./component/PersonelInformation";
+
+import Loginseller from "./component/Loginseller";
 function App() {
   return (
     <>
-      <Mainpage />
+      <div className="h-screen w-full">
+        <Routes>
+          <Route path="/" element={<RegisterChoice />} />
+          <Route path="/loginclient" element={<Login />} />
+          <Route path="/loginseller" element={<Loginseller />} />
+          <Route path="/registerseller" element={<Register />} />
+          <Route path="/registerclient" element={<Registerclient />} />
+        </Routes>
+      </div>
     </>
   );
 }
