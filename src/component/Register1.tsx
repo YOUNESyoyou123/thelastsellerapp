@@ -1,36 +1,36 @@
-import React, { useEffect, useState } from "react";
-import loginAnimation from "../assets/My-Store-animated.json";
+import React, { useState } from "react";
+import loginAnimation from "../assets/User.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
 import Lottie from "lottie-react";
-
+import { useNavigate } from "react-router-dom";
+const API_URL = "http://localhost:5000/registerclient"; // ✅ ton backend
+import { Link } from "react-router-dom";
 
 const translations = {
   en: {
     title: "Sougi Platform",
     subtitle: "Create your account",
     fullname: "Full Name",
-    shopname: "Shop Name (optional)",
-    phone: "Phone Number",
-    email: "Email Address",
     password: "Password",
     confirmPassword: "Confirm Password",
     signup: "Sign Up",
     already: "Already have an account? Sign in",
     success: "Account created successfully!",
+    errorTaken: "Username already taken",
+    errorServer: "Server error, please try again",
   },
   ar: {
     title: "سوقي",
     subtitle: "إنشاء حساب جديد",
     fullname: "الاسم الكامل",
-    shopname: "اسم المتجر (اختياري)",
-    phone: "رقم الهاتف",
-    email: "البريد الإلكتروني",
     password: "كلمة المرور",
     confirmPassword: "تأكيد كلمة المرور",
     signup: "إنشاء الحساب",
     already: "لديك حساب؟ تسجيل الدخول",
     success: "تم إنشاء الحساب بنجاح!",
+    errorTaken: "الاسم مستعمل بالفعل",
+    errorServer: "خطأ في الخادم، حاول مرة أخرى",
   },
 };
 
@@ -75,80 +75,21 @@ function Icon({
   );
 }
 
-const inscription = async()=>{  
-  try {
-    const result = await fetch("")
-  } catch (error) {
-    
-  }
-}
-
-
-const OPENCAGE_API_KEY = "5b93249038624a97bd48f83e49bea550";
-
-const Register = () => {
-  const [coords, setCoords] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [locationName, setLocationName] = useState<string>("📡 Detecting...");
-  const [errorMsg, setErrorMsg] = useState<string>("");
-
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setErrorMsg("❌ Geolocation not supported.");
-      return;
-    }
-
-    const watchId = navigator.geolocation.watchPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoords({ latitude, longitude });
-
-        // ✅ Fetch city + country
-        try {
-          const response = await fetch(
-            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
-          );
-          const data = await response.json();
-
-          if (data.results?.length > 0) {
-            const comp = data.results[0].components;
-            const city =
-              comp.city || comp.town || comp.village || "Unknown city";
-            const country = comp.country || "Unknown country";
-
-            setLocationName(`${city}, ${country}`);
-          } else {
-            setLocationName("❓ Unknown location");
-          }
-        } catch (err) {
-          console.error("Error fetching location name:", err);
-          setLocationName("❌ Error fetching location");
-        }
-      },
-      (error) => {
-        setErrorMsg(`❌ ${error.message}`);
-      },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, []);
+const Registerclient = () => {
   const [lang, setLang] = useState<"en" | "ar">("en");
   const t = translations[lang];
+
   const [formData, setFormData] = useState({
     fullName: "",
-    shopName: "",
-    phone: "",
-    email: "",
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [serverError, setServerError] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -163,8 +104,6 @@ const Register = () => {
     let tempErrors: Record<string, string> = {};
 
     if (!formData.fullName) tempErrors.fullName = "Required";
-    if (!formData.phone) tempErrors.phone = "Required";
-    if (!formData.email) tempErrors.email = "Required";
     if (!formData.password) tempErrors.password = "Required";
     if (formData.password !== formData.confirmPassword)
       tempErrors.confirmPassword = "Passwords do not match";
@@ -175,19 +114,49 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerError("");
+    setSuccessMsg("");
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          FullName: formData.fullName,
+          Password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        setSuccessMsg(t.success);
+        console.log("✅ Registered user:", data.user);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        // Optionnel : reset form après succès
+        navigate("/Market");
+        setFormData({ fullName: "", password: "", confirmPassword: "" });
+      } else if (response.status === 400) {
+        setServerError(t.errorTaken); // Nom déjà pris
+      } else {
+        setServerError(t.errorServer);
+      }
+    } catch (error) {
+      console.error("❌ Fetch error:", error);
+      setServerError(t.errorServer);
+    } finally {
       setIsLoading(false);
-      setSuccessMsg(t.success);
-      console.log("✅ REGISTER DATA:", formData);
-    }, 1000);
+    }
   };
 
   return (
     <div
-      className={`flex min-h-screen items-center justify-center bg-gray-50  ${
+      className={`flex min-h-screen items-center justify-center bg-gray-50 ${
         lang === "ar" ? "direction-rtl" : ""
       }`}
     >
@@ -219,6 +188,13 @@ const Register = () => {
             </div>
           )}
 
+          {/* Server Error */}
+          {serverError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
+              ❌ {serverError}
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
@@ -237,54 +213,6 @@ const Register = () => {
               )}
             </div>
 
-            {/* Shop Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                {t.shopname}
-              </label>
-              <input
-                name="shopName"
-                value={formData.shopName}
-                onChange={handleInputChange}
-                className="w-full mt-1 p-2 border rounded-lg"
-                placeholder={lang === "en" ? "Optional" : "اختياري"}
-              />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                {t.phone}
-              </label>
-              <input
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full mt-1 p-2 border rounded-lg"
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm">{errors.phone}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                {t.email}
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full mt-1 p-2 border rounded-lg"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email}</p>
-              )}
-            </div>
-
             {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -297,6 +225,9 @@ const Register = () => {
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
               />
+              {errors.password && (
+                <p className="text-red-500 text-sm">{errors.password}</p>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -337,7 +268,7 @@ const Register = () => {
 
           {/* Already have account */}
           <p className="text-center text-sm mt-4 text-gray-500 cursor-pointer hover:underline">
-            {t.already}
+            <Link to="/Loginclient">{t.already}</Link>
           </p>
         </div>
       </div>
@@ -345,4 +276,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Registerclient;

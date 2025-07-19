@@ -3,14 +3,14 @@ import loginAnimation from "../assets/Wallet animation.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
 import Lottie from "lottie-react";
-import { Link } from "react-router-dom";
-
-// ✅ Dictionnaire de traduction
+import { Link, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+// ✅ Translation dictionary
 const translations = {
   en: {
     title: "Sougi Platforme ",
     subtitle: "Secure access for healthcare professionals",
-    email: "Email Address",
+    email: "Full Name", // Changed from "Email Address" to "Full Name"
     password: "Password",
     remember: "Remember me",
     forgot: "Forgot password?",
@@ -18,21 +18,21 @@ const translations = {
     security:
       "Protected by enterprise-grade security.\nHIPAA compliant authentication.",
     authError: "Authentication Error",
-    invalid: "Invalid email or password.",
+    invalid: "Invalid name or password.",
     tooMany: "Too many attempts. Try again later.",
-    attempts: (n: number) => `${n} attempt${n !== 1 ? "s" : ""} remaining`,
+    attempts: (n: number) => `${n} attempt${n !== 1 ? "s" : ""} remaining" `,
   },
   ar: {
     title: "سوقي",
     subtitle: "الفضاء الالكتروني",
-    email: "البريد الإلكتروني",
+    email: "الاسم الكامل", // Changed from "البريد الإلكتروني" to "الاسم الكامل"
     password: "كلمة المرور",
     remember: "تذكرني",
     forgot: "نسيت كلمة المرور؟",
     signin: "تسجيل الدخول",
     security: "محمي بأعلى معايير الأمان.\nمصادقة متوافقة مع HIPAA.",
     authError: "خطأ في المصادقة",
-    invalid: "بريد إلكتروني أو كلمة مرور غير صحيحة.",
+    invalid: "اسم مستخدم أو كلمة مرور غير صحيحة.",
     tooMany: "محاولات كثيرة. حاول لاحقًا.",
     attempts: (n: number) => `متبقي ${n} محاولة`,
   },
@@ -84,7 +84,7 @@ const Login = () => {
   const t = translations[lang];
 
   const [formData, setFormData] = useState({
-    email: "",
+    email: "", // This field now represents FullName
     password: "",
     rememberMe: false,
   });
@@ -93,7 +93,7 @@ const Login = () => {
     email?: string;
     password?: string;
   }>({});
-
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -132,18 +132,38 @@ const Login = () => {
 
     setIsLoading(true);
 
-    // Simulated authentication
-    setTimeout(() => {
-      setIsLoading(false);
-      if (
-        formData.email !== "test@example.com" ||
-        formData.password !== "password"
-      ) {
-        setAuthError(t.invalid);
-      } else {
-        alert(lang === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح!");
+    try {
+      const response = await fetch("http://localhost:5000/loginclient", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          FullName: formData.email, // Using email field for FullName
+          Password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || t.invalid);
       }
-    }, 1000);
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/Market");
+      // Show success message
+      // alert(lang === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح!");
+
+      // Here you could redirect to another page
+      // navigate('/dashboard');
+    } catch (error) {
+      console.error("Login error:", error);
+      setAuthError(error.message || t.invalid);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -154,7 +174,7 @@ const Login = () => {
     >
       <div className="w-full max-w-md">
         <div className="bg-white shadow-xl rounded-2xl px-8 py-10">
-          {/* Bouton langue */}
+          {/* Language button */}
           <div className="flex justify-end mb-4">
             <button
               onClick={toggleLang}
@@ -189,7 +209,7 @@ const Login = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+            {/* Full Name (previously Email) */}
             <div>
               <label
                 htmlFor="email"
@@ -201,8 +221,7 @@ const Login = () => {
                 <input
                   id="email"
                   name="email"
-                  type="email"
-                  autoComplete="email"
+                  type="text"
                   required
                   value={formData.email}
                   onChange={handleInputChange}
@@ -211,11 +230,13 @@ const Login = () => {
                       ? "border-red-500 focus:ring-red-300"
                       : "border-gray-300"
                   }`}
-                  placeholder="you@example.com"
+                  placeholder={
+                    lang === "en" ? "Your full name" : "الاسم الكامل"
+                  }
                   disabled={isLoading}
                 />
                 <Icon
-                  name="Mail"
+                  name="User"
                   size={18}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 />
@@ -321,7 +342,7 @@ const Login = () => {
             </button>
 
             <Link
-              to="/registerclient" // ✅ redirige vers la page d'inscription vendeur
+              to="/registerclient"
               className="block w-full mt-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded-lg shadow-sm text-center flex items-center justify-center gap-2 transition duration-200"
             >
               <Icon name="UserPlus" size={18} />

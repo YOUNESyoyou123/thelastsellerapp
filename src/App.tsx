@@ -2,11 +2,10 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import Login from "./component/Login";
-import RegisterChoice from "./component/RegisterChoice";
-import Register from "./component/Register1";
+import Register from "./component/Register2";
+import Registerclient from "./component/Register1";
 import { Routes, Route } from "react-router-dom"; // ✅ PAS BrowserRouter ici
-
-import Registerclient from "./component/Register2";
+import RegisterChoice from "./component/RegisterChoice";
 import MobileFooter from "./component/Footer";
 import Navbar from "./component/NavBar";
 import Mainpage from "./component/Mainpage";
@@ -24,7 +23,13 @@ function App() {
           <Route path="/loginseller" element={<Loginseller />} />
           <Route path="/registerseller" element={<Register />} />
           <Route path="/registerclient" element={<Registerclient />} />
+          <Route path="/Market" element={<Mainpage />} />
+          <Route path="/GestionStore" element={<GestionStore />} />
+          <Route path="/Loginseller" element={<Loginseller />} />
+          <Route path="/Loginclient" element={<Login />} />
+          <Route path="/Settings" element={<Settings />} />
         </Routes>
+        <MobileFooter />
       </div>
     </>
   );

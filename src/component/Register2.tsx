@@ -3,6 +3,8 @@ import loginAnimation from "../assets/My-Store-animated.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
 import Lottie from "lottie-react";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const API_URL = "http://localhost:5000/registerseller"; // ✅ ton backend
 
@@ -94,6 +96,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -194,11 +197,13 @@ const Register = () => {
         setErrorMsg(data.message || t.error);
       } else {
         // ✅ Sauvegarde dans localStorage
+
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
         setSuccessMsg(t.success);
         console.log("✅ REGISTER SUCCESS:", data);
+        navigate("/Market");
 
         // ➡️ Redirection possible (ex: vers dashboard)
         // window.location.href = "/dashboard";
@@ -369,7 +374,7 @@ const Register = () => {
 
           {/* Already have account */}
           <p className="text-center text-sm mt-4 text-gray-500 cursor-pointer hover:underline">
-            {t.already}
+            <Link to="/Loginseller">{t.already}</Link>
           </p>
         </div>
       </div>
