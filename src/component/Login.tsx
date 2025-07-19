@@ -1,31 +1,32 @@
+//@ts-nocheck
+
 import React, { useState } from "react";
 import loginAnimation from "../assets/Wallet animation.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
 import Lottie from "lottie-react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+
 // ✅ Translation dictionary
 const translations = {
   en: {
-    title: "Sougi Platforme ",
-    subtitle: "Secure access for healthcare professionals",
-    email: "Full Name", // Changed from "Email Address" to "Full Name"
+    title: "Sokki",
+    subtitle: "Everyone get close to me",
+    email: "Full Name",
     password: "Password",
     remember: "Remember me",
     forgot: "Forgot password?",
     signin: "Sign In",
-    security:
-      "Protected by enterprise-grade security.\nHIPAA compliant authentication.",
+    security: "Protected by enterprise-grade security.\nHIPAA compliant authentication.",
     authError: "Authentication Error",
     invalid: "Invalid name or password.",
     tooMany: "Too many attempts. Try again later.",
-    attempts: (n: number) => `${n} attempt${n !== 1 ? "s" : ""} remaining" `,
+    attempts: (n: number) => `${n} attempt${n !== 1 ? "s" : ""} remaining`,
   },
   ar: {
     title: "سوقي",
-    subtitle: "الفضاء الالكتروني",
-    email: "الاسم الكامل", // Changed from "البريد الإلكتروني" to "الاسم الكامل"
+    subtitle: "الكل يتقرب مني",
+    email: "الاسم الكامل",
     password: "كلمة المرور",
     remember: "تذكرني",
     forgot: "نسيت كلمة المرور؟",
@@ -67,7 +68,6 @@ function Icon({
       />
     );
   }
-
   return (
     <IconComponent
       size={size}
@@ -80,11 +80,11 @@ function Icon({
 }
 
 const Login = () => {
-  const [lang, setLang] = useState<"en" | "ar">("en");
+  const [lang, setLang] = useState<"en" | "ar">("ar"); // Default language set to Arabic
   const t = translations[lang];
 
   const [formData, setFormData] = useState({
-    email: "", // This field now represents FullName
+    email: "",
     password: "",
     rememberMe: false,
   });
@@ -93,6 +93,7 @@ const Login = () => {
     email?: string;
     password?: string;
   }>({});
+
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -123,41 +124,33 @@ const Login = () => {
     setAuthError("");
     setFieldErrors({});
     setSubmitAttempts((prev) => prev + 1);
-
     if (submitAttempts >= 2) {
       setIsLocked(true);
       setAuthError(t.tooMany);
       return;
     }
-
     setIsLoading(true);
-
     try {
-      const response = await fetch("http://localhost:5000/loginclient", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          FullName: formData.email, // Using email field for FullName
-          Password: formData.password,
-        }),
-      });
-
+      const response = await fetch(
+        "https://backendsellerapp.onrender.com/loginclient",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            FullName: formData.email,
+            Password: formData.password,
+          }),
+        }
+      );
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || t.invalid);
       }
-
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/Market");
-      // Show success message
-      // alert(lang === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح!");
-
-      // Here you could redirect to another page
-      // navigate('/dashboard');
     } catch (error) {
       console.error("Login error:", error);
       setAuthError(error.message || t.invalid);
@@ -171,6 +164,7 @@ const Login = () => {
       className={`flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 ${
         lang === "ar" ? "direction-rtl" : ""
       }`}
+      style={{ fontFamily: "Janna" }}
     >
       <div className="w-full max-w-md">
         <div className="bg-white shadow-xl rounded-2xl px-8 py-10">
@@ -179,41 +173,40 @@ const Login = () => {
             <button
               onClick={toggleLang}
               className="text-sm text-blue-600 hover:underline"
+              style={{ fontFamily: "Janna" }}
             >
               {lang === "en" ? "🇸🇦 عربي" : "🇬🇧 English"}
             </button>
           </div>
-
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-40 h-40 bg-blue-600 rounded-full shadow-md mx-auto mb-4">
-              <Lottie
-                animationData={loginAnimation}
-                loop={true}
-                className="w-64"
-              />
+              <Lottie animationData={loginAnimation} loop={true} className="w-64" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">{t.title}</h1>
-            <p className="text-sm text-gray-500">{t.subtitle}</p>
+            <h1 className="text-2xl font-bold text-gray-800" style={{ fontFamily: "Janna" }}>
+              {t.title}
+            </h1>
+            <p className="text-sm text-gray-500" style={{ fontFamily: "Janna" }}>
+              {t.subtitle}
+            </p>
           </div>
-
           {/* Auth Error */}
           {authError && (
             <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-6 flex gap-3">
               <Icon name="AlertCircle" size={20} />
               <div>
-                <strong className="block font-medium">{t.authError}</strong>
-                <span>{authError}</span>
+                <strong className="block font-medium" style={{ fontFamily: "Janna" }}>{t.authError}</strong>
+                <span style={{ fontFamily: "Janna" }}>{authError}</span>
               </div>
             </div>
           )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name (previously Email) */}
             <div>
               <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
               >
                 {t.email}
               </label>
@@ -230,10 +223,9 @@ const Login = () => {
                       ? "border-red-500 focus:ring-red-300"
                       : "border-gray-300"
                   }`}
-                  placeholder={
-                    lang === "en" ? "Your full name" : "الاسم الكامل"
-                  }
+                  placeholder={lang === "en" ? "Your full name" : "الاسم الكامل"}
                   disabled={isLoading}
+                  style={{ fontFamily: "Janna" }}
                 />
                 <Icon
                   name="User"
@@ -242,15 +234,17 @@ const Login = () => {
                 />
               </div>
               {fieldErrors.email && (
-                <p className="text-sm text-red-600 mt-1">{fieldErrors.email}</p>
+                <p className="text-sm text-red-600 mt-1" style={{ fontFamily: "Janna" }}>
+                  {fieldErrors.email}
+                </p>
               )}
             </div>
-
             {/* Password */}
             <div>
               <label
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
               >
                 {t.password}
               </label>
@@ -268,10 +262,9 @@ const Login = () => {
                       ? "border-red-500 focus:ring-red-300"
                       : "border-gray-300 focus:ring-blue-300"
                   }`}
-                  placeholder={
-                    lang === "en" ? "Enter your password" : "أدخل كلمة المرور"
-                  }
+                  placeholder={lang === "en" ? "Enter your password" : "أدخل كلمة المرور"}
                   disabled={isLoading}
+                  style={{ fontFamily: "Janna" }}
                 />
                 <Icon
                   name="Lock"
@@ -296,15 +289,14 @@ const Login = () => {
                 </button>
               </div>
               {fieldErrors.password && (
-                <p className="text-sm text-red-600 mt-1">
+                <p className="text-sm text-red-600 mt-1" style={{ fontFamily: "Janna" }}>
                   {fieldErrors.password}
                 </p>
               )}
             </div>
-
             {/* Remember Me */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm text-gray-600">
+              <label className="flex items-center gap-2 text-sm text-gray-600" style={{ fontFamily: "Janna" }}>
                 <input
                   type="checkbox"
                   name="rememberMe"
@@ -317,16 +309,17 @@ const Login = () => {
               <button
                 type="button"
                 className="text-sm text-blue-600 hover:underline"
+                style={{ fontFamily: "Janna" }}
               >
                 {t.forgot}
               </button>
             </div>
-
             {/* Submit */}
             <button
               type="submit"
               disabled={!isFormValid || isLoading || isLocked}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg shadow-md flex items-center justify-center gap-2 transition duration-200"
+              style={{ fontFamily: "Janna" }}
             >
               {isLoading ? (
                 <>
@@ -335,30 +328,27 @@ const Login = () => {
                 </>
               ) : (
                 <>
-                  <Icon name="LogIn" size={18} />
-                  {t.signin}
+                  <Icon name="LogIn" size={18} /> {t.signin}
                 </>
               )}
             </button>
-
             <Link
               to="/registerclient"
               className="block w-full mt-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded-lg shadow-sm text-center flex items-center justify-center gap-2 transition duration-200"
+              style={{ fontFamily: "Janna" }}
             >
               <Icon name="UserPlus" size={18} />
               {lang === "en" ? "Create an Account" : "إنشاء حساب جديد"}
             </Link>
-
             {/* Security Notice */}
-            <p className="text-center text-xs text-gray-400 mt-4 whitespace-pre-line">
+            <p className="text-center text-xs text-gray-400 mt-4 whitespace-pre-line" style={{ fontFamily: "Janna" }}>
               {t.security}
             </p>
           </form>
-
           {/* Attempt Counter */}
           {submitAttempts > 0 && submitAttempts < 3 && (
             <div className="mt-4 text-center">
-              <p className="text-sm text-yellow-600">
+              <p className="text-sm text-yellow-600" style={{ fontFamily: "Janna" }}>
                 {t.attempts(3 - submitAttempts)}
               </p>
             </div>

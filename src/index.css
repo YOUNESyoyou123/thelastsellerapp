@@ -1,6 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Define the custom font */
+@font-face {
+  font-family: 'Janna';
+  src: url('./assets/font/JannaLT-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Janna', sans-serif;
+}
+
+/* your existing RTL helper */
 .direction-rtl {
   direction: rtl;
   text-align: right;

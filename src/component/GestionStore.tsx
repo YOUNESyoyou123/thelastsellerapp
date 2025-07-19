@@ -1,4 +1,7 @@
+//@ts-nocheck
+
 import { useState, useEffect } from "react";
+
 import {
   Container,
   Typography,
@@ -13,6 +16,7 @@ import {
   Box,
   Snackbar,
   Alert,
+  InputAdornment,
 } from "@mui/material";
 import { Store, PhotoCamera, Add, Delete, Euro } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -20,6 +24,133 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+
+// Styles object
+const styles = {
+  container: {
+    py: 4,
+    px: { xs: 2, sm: 4 },
+    bgcolor: "#f9fafb",
+    borderRadius: 2,
+  },
+  title: {
+    fontWeight: "bold",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 1,
+    color: "primary.main",
+  },
+  card: {
+    mb: 4,
+    borderRadius: 3,
+    boxShadow: 3,
+    transition: "0.3s",
+    ":hover": { boxShadow: 6 },
+  },
+  productCard: {
+    borderRadius: 2,
+    boxShadow: 2,
+    transition: "transform 0.2s, box-shadow 0.2s",
+    ":hover": {
+      transform: "translateY(-5px)",
+      boxShadow: 4,
+    },
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  },
+  productImage: {
+    width: "100%",
+    height: 150,
+    objectFit: "cover",
+    borderRadius: "8px 8px 0 0",
+  },
+  productContent: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+  },
+  button: {
+    mt: 2,
+  },
+  textField: {
+    "& .MuiInputLabel-root": {
+      fontFamily: "Janna",
+    },
+    "& .MuiOutlinedInput-root": {
+      fontFamily: "Janna",
+    },
+  },
+};
+
+// Translations
+const translations = {
+  en: {
+    storeManagement: "Store Management",
+    shopInfo: "Shop Information",
+    basicInfo: "Configure basic information",
+    shopName: "Shop Name *",
+    address: "Address *",
+    phone: "Phone",
+    email: "Email",
+    uploadImage: "Upload Image",
+    changeImage: "Change Image",
+    description: "Description",
+    save: "Edit / Save",
+    products: "Products",
+    addProduct: "Add Product",
+    productName: "Product Name *",
+    price: "Price (€) *",
+    category: "Category",
+    add: "Add Product",
+    noProducts: "No products added",
+    editProduct: "Edit Product",
+    edit: "Edit",
+    cancel: "Cancel",
+    saveChanges: "Save",
+    successShopUpdate: "Shop updated successfully ✅",
+    errorShopUpdate: "Error updating shop ❌",
+    successProductAdd: "Product added successfully ✅",
+    errorProductAdd: "Error adding product ❌",
+    successProductDelete: "Product deleted successfully ❌",
+    errorProductDelete: "Error deleting product ❌",
+    successProductUpdate: "Product updated successfully ✅",
+    errorProductUpdate: "Error updating product ❌",
+  },
+  ar: {
+    storeManagement: "إدارة المتجر",
+    shopInfo: "معلومات المتجر",
+    basicInfo: "تكوين المعلومات الأساسية",
+    shopName: "اسم المتجر *",
+    address: "العنوان *",
+    phone: "الهاتف",
+    email: "البريد الإلكتروني",
+    uploadImage: "تحميل صورة",
+    changeImage: "تغيير الصورة",
+    description: "الوصف",
+    save: "تعديل / حفظ",
+    products: "المنتجات",
+    addProduct: "إضافة منتج",
+    productName: "اسم المنتج *",
+    price: "السعر (DA) *",
+    category: "الفئة",
+    add: "إضافة المنتج",
+    noProducts: "لم يتم إضافة أي منتجات",
+    editProduct: "تعديل المنتج",
+    edit: "تعديل",
+    cancel: "إلغاء",
+    saveChanges: "حفظ",
+    successShopUpdate: "تم تحديث المتجر بنجاح ✅",
+    errorShopUpdate: "خطأ في تحديث المتجر ❌",
+    successProductAdd: "تمت إضافة المنتج بنجاح ✅",
+    errorProductAdd: "خطأ في إضافة المنتج ❌",
+    successProductDelete: "تم حذف المنتج بنجاح ❌",
+    errorProductDelete: "خطأ في حذف المنتج ❌",
+    successProductUpdate: "تم تحديث المنتج بنجاح ✅",
+    errorProductUpdate: "خطأ في تحديث المنتج ❌",
+  },
+};
 
 interface ShopInfo {
   name: string;
@@ -33,7 +164,7 @@ interface ShopInfo {
 interface Product {
   _id: string;
   ProductName: string;
-  Price: number; // S'assurer que c'est bien un number
+  Price: number;
   Description: string;
   ProductImage: string | null;
   category: string;
@@ -41,6 +172,9 @@ interface Product {
 }
 
 export default function GestionStore() {
+  const [lang, setLang] = useState<"en" | "ar">("ar");
+  const t = translations[lang];
+
   const [shopInfo, setShopInfo] = useState<ShopInfo>({
     name: "",
     address: "",
@@ -49,7 +183,6 @@ export default function GestionStore() {
     description: "",
     image: null,
   });
-
   const [products, setProducts] = useState<Product[]>([]);
   const [newProduct, setNewProduct] = useState({
     ProductName: "",
@@ -58,7 +191,6 @@ export default function GestionStore() {
     ProductImage: null as File | null,
     category: "",
   });
-
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -82,16 +214,14 @@ export default function GestionStore() {
     const fetchSellerInfo = async () => {
       const seller = getSellerFromStorage();
       if (!seller) {
-        showSnackbar("Aucun vendeur trouvé en localStorage", "error");
+        showSnackbar(t.errorShopUpdate, "error");
         return;
       }
-
       try {
         const response = await fetch(
-          `http://localhost:5000/sellers/${seller._id}`
+          `https://backendsellerapp.onrender.com/sellers/${seller._id}`
         );
         const data = await response.json();
-
         if (response.ok) {
           setShopInfo({
             name: data.ShopName || "",
@@ -101,33 +231,30 @@ export default function GestionStore() {
             description: data.description || "",
             image: data.shopImage || null,
           });
-          showSnackbar("✅ Données du magasin chargées", "success");
+          showSnackbar(t.successShopUpdate, "success");
         }
       } catch (error) {
         console.error("Erreur fetch seller:", error);
         showSnackbar("Erreur de connexion au serveur", "error");
       }
     };
-
     fetchSellerInfo();
     fetchProducts();
-  }, []);
+  }, [t.successShopUpdate, t.errorShopUpdate]);
 
   const fetchProducts = async () => {
     const seller = getSellerFromStorage();
     if (!seller) return;
-
     try {
       const response = await fetch(
-        `http://localhost:5000/products/seller/${seller._id}`
+        `https://backendsellerapp.onrender.com/products/seller/${seller._id}`
       );
       const data = await response.json();
-
       if (response.ok) {
         setProducts(data);
       } else {
         showSnackbar(
-          `❌ Erreur lors du chargement des produits: ${data.message}`,
+          `${t.errorProductAdd}: ${data.message}`,
           "error"
         );
       }
@@ -145,7 +272,6 @@ export default function GestionStore() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "younes");
-
     try {
       const res = await fetch(
         "https://api.cloudinary.com/v1_1/dx9sn5ugl/image/upload",
@@ -165,10 +291,9 @@ export default function GestionStore() {
       showSnackbar("⚠️ Aucun vendeur connecté", "error");
       return;
     }
-
     try {
       const response = await fetch(
-        `http://localhost:5000/sellers/${seller._id}`,
+        `https://backendsellerapp.onrender.com/sellers/${seller._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -182,14 +307,12 @@ export default function GestionStore() {
           }),
         }
       );
-
       const data = await response.json();
-
       if (response.ok) {
-        showSnackbar("✅ Magasin mis à jour avec succès", "success");
+        showSnackbar(t.successShopUpdate, "success");
         localStorage.setItem("sellerInfo", JSON.stringify(data));
       } else {
-        showSnackbar(`❌ Erreur : ${data.message}`, "error");
+        showSnackbar(`${t.errorShopUpdate}: ${data.message}`, "error");
       }
     } catch (error) {
       console.error(error);
@@ -202,20 +325,17 @@ export default function GestionStore() {
       showSnackbar("Nom et prix valide obligatoires !", "error");
       return;
     }
-
     const seller = getSellerFromStorage();
     if (!seller?._id) {
       showSnackbar("⚠️ Aucun vendeur connecté", "error");
       return;
     }
-
     try {
       let productImageUrl = null;
       if (newProduct.ProductImage) {
         productImageUrl = await uploadToCloudinary(newProduct.ProductImage);
       }
-
-      const response = await fetch("http://localhost:5000/products", {
+      const response = await fetch("https://backendsellerapp.onrender.com/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -228,11 +348,9 @@ export default function GestionStore() {
           ShopName: seller.ShopName,
         }),
       });
-
       const data = await response.json();
-
       if (response.ok) {
-        showSnackbar("Produit ajouté avec succès ✅", "success");
+        showSnackbar(t.successProductAdd, "success");
         setNewProduct({
           ProductName: "",
           Price: 0,
@@ -242,7 +360,7 @@ export default function GestionStore() {
         });
         fetchProducts();
       } else {
-        showSnackbar(`❌ Erreur : ${data.message}`, "error");
+        showSnackbar(`${t.errorProductAdd}: ${data.message}`, "error");
       }
     } catch (error) {
       console.error("Erreur ajout produit:", error);
@@ -252,16 +370,15 @@ export default function GestionStore() {
 
   const handleRemoveProduct = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/products/${id}`, {
+      const response = await fetch(`https://backendsellerapp.onrender.com/products/${id}`, {
         method: "DELETE",
       });
-
       if (response.ok) {
-        showSnackbar("Produit supprimé avec succès ❌", "info");
+        showSnackbar(t.successProductDelete, "info");
         fetchProducts();
       } else {
         const data = await response.json();
-        showSnackbar(`❌ Erreur : ${data.message}`, "error");
+        showSnackbar(`${t.errorProductDelete}: ${data.message}`, "error");
       }
     } catch (error) {
       console.error("Erreur suppression produit:", error);
@@ -276,7 +393,7 @@ export default function GestionStore() {
   const handleEditClick = (product: Product) => {
     setEditingProduct({
       ...product,
-      category: product.category || "", // Garantit une chaîne vide si category est undefined
+      category: product.category || "",
     });
     setIsEditDialogOpen(true);
     setNewImageFile(null);
@@ -284,20 +401,16 @@ export default function GestionStore() {
 
   const handleUpdateProduct = async () => {
     if (!editingProduct) return;
-
     try {
       let imageUrl = editingProduct.ProductImage;
-
-      // Upload nouvelle image si fournie
       if (newImageFile) {
         const uploadedUrl = await uploadToCloudinary(newImageFile);
         if (uploadedUrl) {
           imageUrl = uploadedUrl;
         }
       }
-
       const response = await fetch(
-        `http://localhost:5000/products/${editingProduct._id}`,
+        `https://backendsellerapp.onrender.com/products/${editingProduct._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -310,17 +423,15 @@ export default function GestionStore() {
           }),
         }
       );
-
       const data = await response.json();
-
       if (response.ok) {
-        showSnackbar("Produit modifié avec succès ✅", "success");
+        showSnackbar(t.successProductUpdate, "success");
         setProducts(
           products.map((p) => (p._id === editingProduct._id ? data.product : p))
         );
         setIsEditDialogOpen(false);
       } else {
-        showSnackbar(`❌ Erreur : ${data.message}`, "error");
+        showSnackbar(`${t.errorProductUpdate}: ${data.message}`, "error");
       }
     } catch (error) {
       console.error("Erreur modification produit:", error);
@@ -330,70 +441,79 @@ export default function GestionStore() {
 
   return (
     <Container
-      maxWidth="xs"
-      sx={{ py: 4, px: { xs: 2, sm: 4 }, bgcolor: "#f9fafb", borderRadius: 2 }}
+      maxWidth="lg"
+      sx={{
+        ...styles.container,
+        direction: lang === "ar" ? "rtl" : "ltr",
+        fontFamily: "Janna",
+      }}
     >
-      {/* HEADER */}
+      {/* Language toggle button */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={() => setLang(lang === "en" ? "ar" : "en")}
+          sx={{ fontFamily: "Janna" }}
+        >
+          {lang === "en" ? "العربية" : "English"}
+        </Button>
+      </Box>
+
+      {/* Header */}
       <Typography
         variant="h4"
         align="center"
         gutterBottom
         sx={{
-          fontWeight: "bold",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 1,
-          color: "primary.main",
+          ...styles.title,
+          fontFamily: "Janna",
         }}
       >
         <Store fontSize="large" />
-        Gestion du Magasin
+        {t.storeManagement}
       </Typography>
 
-      {/* SHOP INFO */}
-      <Card
-        sx={{
-          mb: 4,
-          borderRadius: 3,
-          boxShadow: 3,
-          transition: "0.3s",
-          ":hover": { boxShadow: 6 },
-        }}
-      >
+      {/* Shop Info Card */}
+      <Card sx={styles.card}>
         <CardHeader
-          title="Informations du Magasin"
-          subheader="Configurez les informations de base"
+          title={t.shopInfo}
+          subheader={t.basicInfo}
+          sx={{ fontFamily: "Janna" }}
         />
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
-              label="Nom du magasin *"
+              label={t.shopName}
               value={shopInfo.name}
               onChange={(e) => handleShopChange("name", e.target.value)}
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <TextField
-              label="Adresse *"
+              label={t.address}
               value={shopInfo.address}
               onChange={(e) => handleShopChange("address", e.target.value)}
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <TextField
-              label="Téléphone"
+              label={t.phone}
               value={shopInfo.phone}
               onChange={(e) => handleShopChange("phone", e.target.value)}
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <TextField
-              label="Email"
+              label={t.email}
               type="email"
               value={shopInfo.email}
               onChange={(e) => handleShopChange("email", e.target.value)}
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <Button
               variant="outlined"
               component="label"
               startIcon={<PhotoCamera />}
+              sx={{ fontFamily: "Janna" }}
             >
-              {shopInfo.image ? "Changer l'image" : "Télécharger une image"}
+              {shopInfo.image ? t.changeImage : t.uploadImage}
               <input
                 type="file"
                 hidden
@@ -407,62 +527,60 @@ export default function GestionStore() {
                 }}
               />
             </Button>
-
             {shopInfo.image && (
               <img
                 src={shopInfo.image}
                 alt="Preview"
-                style={{ width: "100%", marginTop: 8, borderRadius: 8 }}
+                style={{
+                  width: "100%",
+                  marginTop: 8,
+                  borderRadius: 8,
+                  maxHeight: 200,
+                  objectFit: "cover"
+                }}
               />
             )}
-
             <TextField
-              label="Description"
+              label={t.description}
               multiline
-              rows={1}
+              rows={3}
               value={shopInfo.description}
               onChange={(e) => handleShopChange("description", e.target.value)}
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
           </Box>
-
           <Button
             onClick={sauvgardershoinfo}
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ ...styles.button, fontFamily: "Janna" }}
           >
-            Modifier / Sauvegarder
+            {t.save}
           </Button>
         </CardContent>
       </Card>
 
+      {/* Products Divider */}
       <Divider sx={{ my: 4 }}>
-        <Chip label="Produits" />
+        <Chip label={t.products} sx={{ fontFamily: "Janna" }} />
       </Divider>
 
-      {/* ADD PRODUCT */}
-      <Card
-        sx={{
-          mb: 4,
-          borderRadius: 3,
-          boxShadow: 3,
-          transition: "0.3s",
-          ":hover": { boxShadow: 6 },
-        }}
-      >
-        <CardHeader title="Ajouter un produit" />
+      {/* Add Product Card */}
+      <Card sx={styles.card}>
+        <CardHeader title={t.addProduct} sx={{ fontFamily: "Janna" }} />
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
-              label="Nom du produit *"
+              label={t.productName}
               value={newProduct.ProductName}
               onChange={(e) =>
                 setNewProduct({ ...newProduct, ProductName: e.target.value })
               }
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <TextField
-              label="Prix (€) *"
+              label={t.price}
               type="number"
               value={newProduct.Price || ""}
               onChange={(e) =>
@@ -471,23 +589,30 @@ export default function GestionStore() {
                   Price: parseFloat(e.target.value) || 0,
                 })
               }
-              InputProps={{ startAdornment: <Euro sx={{ mr: 1 }} /> }}
+              InputProps={{
+                 startAdornment: (
+                     <InputAdornment position="start">
+                       DA
+                     </InputAdornment>
+                   )
+               }}
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <TextField
-              label="Catégorie"
+              label={t.category}
               value={newProduct.category}
               onChange={(e) =>
                 setNewProduct({ ...newProduct, category: e.target.value })
               }
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
             <Button
               variant="outlined"
               component="label"
               startIcon={<PhotoCamera />}
+              sx={{ fontFamily: "Janna" }}
             >
-              {newProduct.ProductImage
-                ? "Changer l'image"
-                : "Télécharger une image"}
+              {newProduct.ProductImage ? t.changeImage : t.uploadImage}
               <input
                 type="file"
                 hidden
@@ -499,39 +624,48 @@ export default function GestionStore() {
               />
             </Button>
             <TextField
-              label="Description"
+              label={t.description}
               multiline
-              rows={1}
+              rows={3}
               value={newProduct.Description}
               onChange={(e) =>
                 setNewProduct({ ...newProduct, Description: e.target.value })
               }
+              sx={{ ...styles.textField, fontFamily: "Janna" }}
             />
           </Box>
           <Button
             onClick={handleAddProduct}
             variant="contained"
             startIcon={<Add />}
-            sx={{ mt: 2 }}
+            sx={{ ...styles.button, fontFamily: "Janna" }}
           >
-            Ajouter le produit
+            {t.add}
           </Button>
         </CardContent>
       </Card>
 
-      {/* PRODUCT LIST */}
+      {/* Products Grid */}
       {products.length > 0 ? (
         <Box
           sx={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 2,
+            gap: 3,
+            mt: 2,
           }}
         >
           {products.map((product) => (
-            <Card key={product._id} sx={{ borderRadius: 2, boxShadow: 2 }}>
-              <CardContent>
-                <Typography variant="h6" color="primary" fontWeight="bold">
+            <Card key={product._id} sx={styles.productCard}>
+              {product.ProductImage && (
+                <img
+                  src={product.ProductImage}
+                  alt={product.ProductName}
+                  style={styles.productImage}
+                />
+              )}
+              <CardContent sx={styles.productContent}>
+                <Typography variant="h6" color="primary" fontWeight="bold" sx={{ fontFamily: "Janna" }}>
                   {product.ProductName}
                 </Typography>
                 <Chip
@@ -541,40 +675,41 @@ export default function GestionStore() {
                       : Number(product.Price).toFixed(2)
                   } €`}
                   color="primary"
-                  sx={{ my: 1 }}
+                  sx={{ my: 1, fontFamily: "Janna" }}
                 />
                 {product.category && (
-                  <Typography variant="body2" color="text.secondary">
-                    Catégorie: {product.category}
+                  <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "Janna" }}>
+                    {t.category}: {product.category}
                   </Typography>
                 )}
                 {product.Description && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ mt: 1, fontFamily: "Janna" }}>
                     {product.Description}
                   </Typography>
                 )}
-                {product.ProductImage && (
-                  <img
-                    src={product.ProductImage}
-                    alt={product.ProductName}
-                    style={{ width: "100%", marginTop: 8, borderRadius: 4 }}
-                  />
-                )}
               </CardContent>
               <Box
-                textAlign="right"
-                p={1}
-                sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}
+                sx={{
+                  p: 1,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 1,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                  mt: "auto"
+                }}
               >
                 <IconButton
                   color="primary"
                   onClick={() => handleEditClick(product)}
+                  aria-label={t.edit}
                 >
                   <EditIcon />
                 </IconButton>
                 <IconButton
                   color="error"
                   onClick={() => handleRemoveProduct(product._id)}
+                  aria-label="Delete"
                 >
                   <Delete />
                 </IconButton>
@@ -583,24 +718,24 @@ export default function GestionStore() {
           ))}
         </Box>
       ) : (
-        <Typography align="center" color="text.secondary" mt={4}>
-          Aucun produit ajouté
+        <Typography align="center" color="text.secondary" mt={4} sx={{ fontFamily: "Janna" }}>
+          {t.noProducts}
         </Typography>
       )}
 
-      {/* Dialogue de modification */}
+      {/* Edit Product Dialog */}
       <Dialog
         open={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
       >
-        <DialogTitle>Modifier le produit</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "Janna" }}>{t.editProduct}</DialogTitle>
         <DialogContent>
           {editingProduct && (
             <Box
               sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
             >
               <TextField
-                label="Nom du produit *"
+                label={t.productName}
                 value={editingProduct.ProductName}
                 onChange={(e) =>
                   setEditingProduct({
@@ -610,9 +745,10 @@ export default function GestionStore() {
                 }
                 fullWidth
                 margin="normal"
+                sx={{ ...styles.textField, fontFamily: "Janna" }}
               />
               <TextField
-                label="Prix (€) *"
+                label={t.price}
                 type="number"
                 value={editingProduct.Price}
                 onChange={(e) =>
@@ -624,9 +760,10 @@ export default function GestionStore() {
                 InputProps={{ startAdornment: <Euro sx={{ mr: 1 }} /> }}
                 fullWidth
                 margin="normal"
+                sx={{ ...styles.textField, fontFamily: "Janna" }}
               />
               <TextField
-                label="Catégorie"
+                label={t.category}
                 value={editingProduct.category}
                 onChange={(e) =>
                   setEditingProduct({
@@ -636,14 +773,15 @@ export default function GestionStore() {
                 }
                 fullWidth
                 margin="normal"
+                sx={{ ...styles.textField, fontFamily: "Janna" }}
               />
               <Button
                 variant="outlined"
                 component="label"
                 startIcon={<PhotoCamera />}
-                sx={{ mt: 1 }}
+                sx={{ mt: 1, fontFamily: "Janna" }}
               >
-                {newImageFile ? "Changer l'image" : "Modifier l'image"}
+                {newImageFile ? t.changeImage : t.uploadImage}
                 <input
                   type="file"
                   hidden
@@ -655,7 +793,7 @@ export default function GestionStore() {
                 />
               </Button>
               <TextField
-                label="Description"
+                label={t.description}
                 multiline
                 rows={4}
                 value={editingProduct.Description}
@@ -667,29 +805,34 @@ export default function GestionStore() {
                 }
                 fullWidth
                 margin="normal"
+                sx={{ ...styles.textField, fontFamily: "Janna" }}
               />
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsEditDialogOpen(false)}>Annuler</Button>
+          <Button onClick={() => setIsEditDialogOpen(false)} sx={{ fontFamily: "Janna" }}>
+            {t.cancel}
+          </Button>
           <Button
             onClick={handleUpdateProduct}
             variant="contained"
             color="primary"
+            sx={{ fontFamily: "Janna" }}
           >
-            Enregistrer
+            {t.saveChanges}
           </Button>
         </DialogActions>
       </Dialog>
 
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity={snackbar.severity} sx={{ width: "100%" }}>
+        <Alert severity={snackbar.severity} sx={{ width: "100%", fontFamily: "Janna" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

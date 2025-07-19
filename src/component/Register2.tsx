@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import React, { useEffect, useState } from "react";
 import loginAnimation from "../assets/My-Store-animated.json";
 import * as LucideIcons from "lucide-react";
@@ -6,7 +8,7 @@ import Lottie from "lottie-react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-const API_URL = "http://localhost:5000/registerseller"; // ✅ ton backend
+const API_URL = "https://backendsellerapp.onrender.com/registerseller";
 
 const translations = {
   en: {
@@ -82,10 +84,7 @@ function Icon({
 const OPENCAGE_API_KEY = "5b93249038624a97bd48f83e49bea550";
 
 const Register = () => {
-  const [coords, setCoords] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationName, setLocationName] = useState<string>("📡 Detecting...");
   const [lang, setLang] = useState<"en" | "ar">("en");
   const [formData, setFormData] = useState({
@@ -97,26 +96,21 @@ const Register = () => {
     confirmPassword: "",
   });
   const navigate = useNavigate();
-
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-
   const t = translations[lang];
 
-  // ✅ Détection de la position + nom de ville
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocationName("❌ Geolocation not supported");
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
         setCoords({ latitude, longitude });
-
         try {
           const res = await fetch(
             `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
@@ -124,8 +118,7 @@ const Register = () => {
           const data = await res.json();
           if (data.results?.length > 0) {
             const comp = data.results[0].components;
-            const city =
-              comp.city || comp.town || comp.village || "Unknown city";
+            const city = comp.city || comp.town || comp.village || "Unknown city";
             const country = comp.country || "Unknown country";
             setLocationName(`${city}, ${country}`);
           } else {
@@ -168,11 +161,9 @@ const Register = () => {
       setErrorMsg("❌ Location not detected");
       return;
     }
-
     setIsLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
-
     const payload = {
       FullName: formData.fullName,
       ShopName: formData.shopName,
@@ -183,30 +174,21 @@ const Register = () => {
       Latitude: coords.latitude,
       Longitude: coords.longitude,
     };
-
     try {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setErrorMsg(data.message || t.error);
       } else {
-        // ✅ Sauvegarde dans localStorage
-
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-
         setSuccessMsg(t.success);
         console.log("✅ REGISTER SUCCESS:", data);
         navigate("/Market");
-
-        // ➡️ Redirection possible (ex: vers dashboard)
-        // window.location.href = "/dashboard";
       }
     } catch (err) {
       console.error("❌ Error:", err);
@@ -221,6 +203,7 @@ const Register = () => {
       className={`flex min-h-screen items-center justify-center bg-gray-50 ${
         lang === "ar" ? "direction-rtl" : ""
       }`}
+      style={{ fontFamily: "Janna" }}
     >
       <div className="w-full max-w-md">
         <div className="bg-white shadow-xl rounded-2xl px-8 py-10">
@@ -229,38 +212,51 @@ const Register = () => {
             <button
               onClick={toggleLang}
               className="text-sm text-blue-600 hover:underline"
+              style={{ fontFamily: "Janna" }}
             >
               {lang === "en" ? "🇸🇦 عربي" : "🇬🇧 English"}
             </button>
           </div>
-
           {/* Logo */}
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-32 h-32 bg-blue-600 rounded-full shadow-md mx-auto mb-3">
               <Lottie animationData={loginAnimation} loop className="w-40" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">{t.title}</h1>
-            <p className="text-sm text-gray-500">{t.subtitle}</p>
-            <p className="text-xs text-gray-400 mt-1">📍 {locationName}</p>
+            <h1 className="text-2xl font-bold text-gray-800" style={{ fontFamily: "Janna" }}>
+              {t.title}
+            </h1>
+            <p className="text-sm text-gray-500" style={{ fontFamily: "Janna" }}>
+              {t.subtitle}
+            </p>
+            <p className="text-xs text-gray-400 mt-1" style={{ fontFamily: "Janna" }}>
+              📍 {locationName}
+            </p>
           </div>
-
           {/* Messages */}
           {successMsg && (
-            <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg mb-4">
+            <div
+              className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg mb-4"
+              style={{ fontFamily: "Janna" }}
+            >
               ✅ {successMsg}
             </div>
           )}
           {errorMsg && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
+            <div
+              className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-4"
+              style={{ fontFamily: "Janna" }}
+            >
               ❌ {errorMsg}
             </div>
           )}
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
+              >
                 {t.fullname}
               </label>
               <input
@@ -268,15 +264,20 @@ const Register = () => {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
+                style={{ fontFamily: "Janna" }}
               />
               {errors.fullName && (
-                <p className="text-red-500 text-sm">{errors.fullName}</p>
+                <p className="text-red-500 text-sm" style={{ fontFamily: "Janna" }}>
+                  {errors.fullName}
+                </p>
               )}
             </div>
-
             {/* Shop Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
+              >
                 {t.shopname}
               </label>
               <input
@@ -285,12 +286,15 @@ const Register = () => {
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
                 placeholder={lang === "en" ? "Optional" : "اختياري"}
+                style={{ fontFamily: "Janna" }}
               />
             </div>
-
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
+              >
                 {t.phone}
               </label>
               <input
@@ -299,15 +303,20 @@ const Register = () => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
+                style={{ fontFamily: "Janna" }}
               />
               {errors.phone && (
-                <p className="text-red-500 text-sm">{errors.phone}</p>
+                <p className="text-red-500 text-sm" style={{ fontFamily: "Janna" }}>
+                  {errors.phone}
+                </p>
               )}
             </div>
-
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
+              >
                 {t.email}
               </label>
               <input
@@ -316,15 +325,20 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
+                style={{ fontFamily: "Janna" }}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email}</p>
+                <p className="text-red-500 text-sm" style={{ fontFamily: "Janna" }}>
+                  {errors.email}
+                </p>
               )}
             </div>
-
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
+              >
                 {t.password}
               </label>
               <input
@@ -333,12 +347,15 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
+                style={{ fontFamily: "Janna" }}
               />
             </div>
-
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Janna" }}
+              >
                 {t.confirmPassword}
               </label>
               <input
@@ -347,17 +364,20 @@ const Register = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 className="w-full mt-1 p-2 border rounded-lg"
+                style={{ fontFamily: "Janna" }}
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                <p className="text-red-500 text-sm" style={{ fontFamily: "Janna" }}>
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
-
             {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg shadow-md flex items-center justify-center gap-2 transition duration-200"
+              style={{ fontFamily: "Janna" }}
             >
               {isLoading ? (
                 <>
@@ -371,9 +391,11 @@ const Register = () => {
               )}
             </button>
           </form>
-
           {/* Already have account */}
-          <p className="text-center text-sm mt-4 text-gray-500 cursor-pointer hover:underline">
+          <p
+            className="text-center text-sm mt-4 text-gray-500 cursor-pointer hover:underline"
+            style={{ fontFamily: "Janna" }}
+          >
             <Link to="/Loginseller">{t.already}</Link>
           </p>
         </div>

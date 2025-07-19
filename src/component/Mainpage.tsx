@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import React, { useEffect, useState } from "react";
 import { SearchHeader } from "./SearchHeader";
 import { ProductCard } from "./ProductCardProps";
@@ -114,7 +116,7 @@ export default function Mainpage() {
       if (!selectedProduct) return;
 
       const response = await fetch(
-        `http://localhost:5000/products/${selectedProduct._id}/rate`,
+        `https://backendsellerapp.onrender.com/products/${selectedProduct._id}/rate`,
         {
           method: "POST",
           headers: {
@@ -167,7 +169,7 @@ export default function Mainpage() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/sellers/${product.IdresponsibleShop}`
+        `https://backendsellerapp.onrender.com/sellers/${product.IdresponsibleShop}`
       );
       const data: Seller = await res.json();
       setSellerInfo(data);
@@ -184,7 +186,7 @@ export default function Mainpage() {
 
       // 🔹 1. Chercher les vendeurs qui ont Place ~ place
       const sellersResponse = await fetch(
-        `http://localhost:5000/sellers/sell/nearby?place=${encodeURIComponent(
+        `https://backendsellerapp.onrender.com/sellers/sell/nearby?place=${encodeURIComponent(
           place
         )}`
       );
@@ -207,7 +209,7 @@ export default function Mainpage() {
       // 🔹 2. Charger les produits de ces vendeurs
       const sellerIds = sellers.map((seller) => seller._id);
       const productsResponse = await fetch(
-        "http://localhost:5000/products/bysellers",
+        "https://backendsellerapp.onrender.com/products/bysellers",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
