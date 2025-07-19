@@ -23,8 +23,11 @@ import {
   Alert,
   InputAdornment,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import PersonIcon from "@mui/icons-material/Person";
 import SecurityIcon from "@mui/icons-material/Security";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
@@ -37,6 +40,19 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { User } from "lucide-react";
 
 export default function Settings() {
+  const [isShopOpen, setIsShopOpen] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        return user.open ?? false; // false par défaut si non défini
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+
   const [userData, setUserData] = useState(null);
   const [openPersonalInfoDialog, setOpenPersonalInfoDialog] = useState(false);
   const [openSecurityDialog, setOpenSecurityDialog] = useState(false);
@@ -47,6 +63,38 @@ export default function Settings() {
     confirm: "",
   });
   const [passwordError, setPasswordError] = useState("");
+
+  const toggleShopStatus = async () => {
+    const newStatus = !isShopOpen;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/sellers/${userData._id}/shop-status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ open: newStatus }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsShopOpen(newStatus);
+        // Mise à jour locale si nécessaire
+        const updatedUser = { ...userData, open: newStatus };
+        setUserData(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      } else {
+        console.error("Error:", data.message);
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+    }
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -109,6 +157,24 @@ export default function Settings() {
         Paramètres
       </Typography>
 
+      {userData?.Role === "seller" && (
+        <Card sx={{ p: 2, mt: 2, display: "flex", alignItems: "center" }}>
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h6">Statut de la boutique</Typography>
+            <Typography color="text.secondary">
+              {isShopOpen ? "Actuellement ouverte" : "Actuellement fermée"}
+            </Typography>
+          </Box>
+          <Button
+            startIcon={isShopOpen ? <StorefrontIcon /> : <StoreIcon />}
+            onClick={toggleShopStatus}
+            color={isShopOpen ? "success" : "error"}
+            variant="outlined"
+          >
+            {isShopOpen ? "Fermer boutique" : "Ouvrir boutique"}
+          </Button>
+        </Card>
+      )}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
         {/* Profile Section */}
         <Card
@@ -199,7 +265,6 @@ export default function Settings() {
           </List>
         </Card>
       </Box>
-
       {/* Personal Information Dialog */}
       <Dialog
         open={openPersonalInfoDialog}
@@ -312,7 +377,6 @@ export default function Settings() {
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Security Dialog - Password Change */}
       <Dialog
         open={openSecurityDialog}

@@ -1,4 +1,3 @@
-// ProductCardProps.tsx
 import {
   Card,
   CardContent,
@@ -7,30 +6,29 @@ import {
   IconButton,
   Box,
   Button,
+  Rating,
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import StarIcon from "@mui/icons-material/Star";
 
 interface ProductCardProps {
-  _id: string;
   title: string;
   price: string;
   image: string;
-  rating?: number;
-  reviews?: number;
   category?: string;
   shopName?: string;
+  ratingValue?: number;
+  ratingCount?: number;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
-  _id,
   title,
   price,
   image,
-  rating = 4.5, // Valeur par défaut
-  reviews = 0, // Valeur par défaut
   category,
   shopName,
+  ratingValue = 0,
+  ratingCount = 0,
 }) => {
   return (
     <Card
@@ -88,7 +86,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            minHeight: "3em", // Pour maintenir la hauteur même avec 1 ligne
+            minHeight: "3em",
           }}
         >
           {title}
@@ -102,37 +100,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
         {/* Rating */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, my: 1 }}>
-          <StarIcon sx={{ fontSize: 16, color: "gold" }} />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, my: 1 }}>
+          <Rating
+            value={ratingValue}
+            precision={0.5}
+            readOnly
+            size="small"
+            icon={<StarIcon fontSize="inherit" />}
+            emptyIcon={
+              <StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />
+            }
+          />
           <Typography variant="caption" color="text.secondary">
-            {rating.toFixed(1)} ({reviews})
+            ({ratingCount})
           </Typography>
         </Box>
 
-        {/* Price + Add to cart */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mt: "auto", // Pousse vers le bas
-          }}
-        >
-          <Typography variant="h6" fontWeight="bold">
-            {price}
-          </Typography>
-          <Button
-            variant="contained"
-            size="small"
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              px: 2,
-            }}
-          >
-            Add to Cart
-          </Button>
-        </Box>
+        {/* Price */}
+        <Typography variant="h6" fontWeight="bold" sx={{ mt: "auto" }}>
+          {price}
+        </Typography>
       </CardContent>
     </Card>
   );

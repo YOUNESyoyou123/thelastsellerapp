@@ -225,6 +225,7 @@ export default function GestionStore() {
           ProductImage: productImageUrl,
           IdresponsibleShop: seller._id,
           category: newProduct.category,
+          ShopName: seller.ShopName,
         }),
       });
 

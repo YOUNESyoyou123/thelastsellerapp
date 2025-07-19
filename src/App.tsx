@@ -4,10 +4,9 @@ import viteLogo from "/vite.svg";
 import Login from "./component/Login";
 import Register from "./component/Register2";
 import Registerclient from "./component/Register1";
-import { Routes, Route } from "react-router-dom"; // ✅ PAS BrowserRouter ici
+import { Routes, Route } from "react-router-dom"; 
 import RegisterChoice from "./component/RegisterChoice";
 import MobileFooter from "./component/Footer";
-import Navbar from "./component/NavBar";
 import Mainpage from "./component/Mainpage";
 import GestionStore from "./component/GestionStore";
 import Settings from "./component/PersonelInformation";
