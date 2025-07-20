@@ -1,6 +1,6 @@
 //@ts-nocheck
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import loginAnimation from "../assets/Wallet animation.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
@@ -102,6 +102,12 @@ const Login = () => {
   const [isLocked, setIsLocked] = useState(false);
 
   const isFormValid = formData.email !== "" && formData.password !== "";
+
+  useEffect(() => {
+    if (localStorage.getItem('user') || localStorage.getItem('token')) {
+      navigate('/Market');
+    }
+  }, [navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

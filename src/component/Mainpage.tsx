@@ -355,9 +355,15 @@ export default function Mainpage() {
     try {
       setLoading(true);
       setErrorMsg("");
+      // Normalisation de la localisation
+      const normalizedPlace = place
+        .toLowerCase()
+        .replace(/[éè]/g, "e")
+        .replace(/[àä]/g, "a")
+        .replace(/\s+/g, "");
       const sellersResponse = await fetch(
         `https://backendsellerapp.onrender.com/sellers/sell/nearby?place=${encodeURIComponent(
-          place
+          normalizedPlace
         )}`
       );
       if (!sellersResponse.ok) {
@@ -514,13 +520,16 @@ export default function Mainpage() {
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        maxWidth="md"
+        maxWidth="xl"
         fullWidth
+        fullScreen
         PaperProps={{
           sx: {
             borderRadius: 3,
             overflow: "hidden",
             boxShadow: 3,
+            width: '100vw',
+            height: '100vh',
           },
         }}
       >
@@ -540,34 +549,34 @@ export default function Mainpage() {
             </StyledTypography>
           </Box>
         </DialogTitle>
-        <DialogContent sx={styles.dialogContent}>
+        <DialogContent sx={{ p: 0, width: '100vw', height: '100vh', mr: '4px' }}>
           {selectedProduct && (
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Box sx={styles.productImage}>
+            <Grid container spacing={2} sx={{ width: '100%', height: '100%', textAlign: 'right', m: 0 }}>
+              <Grid item xs={12} sx={{ height: 'auto', width: '100%' }}>
+                <Box sx={{ ...styles.productImage, width: '100%', textAlign: 'right', height: 'auto' }}>
                   <img
                     src={selectedProduct.ProductImage}
                     alt={selectedProduct.ProductName}
-                    style={{ maxWidth: "100%", maxHeight: "100%" }}
+                    style={{ maxWidth: "80%", maxHeight: "80%", width: '80%' , margin:"auto" }}
                   />
                 </Box>
-                <Box sx={{ mt: 3 }}>
-                  <StyledTypography variant="h6" gutterBottom>
+                <Box sx={{ mt: 3, width: '100%', textAlign: 'right', mr: '15px' }}>
+                  <StyledTypography variant="h6" sx={{ mr: '15px' }} gutterBottom>
                     الوصف
                   </StyledTypography>
-                  <StyledTypography variant="body1" sx={{ mb: 4 }}>
+                  <StyledTypography variant="body1" sx={{ mb: 4  , mr: '15px' }}>
                     {selectedProduct.Description || "لا يوجد وصف متاح"}
                   </StyledTypography>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={8}>
-                <Paper sx={styles.productInfo}>
+              <Grid item xs={12} md={8} sx={{ width: '100%', height: '100%' }}>
+                <Paper sx={{ ...styles.productInfo, width: '100%', height: '100%', textAlign: 'right' }}>
                   <StyledTypography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#4caf50" }}>
                     معلومات المنتج
                   </StyledTypography>
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 2  , textAlign: 'right'  ,  width: '100%'} }>
                     <StyledTypography variant="subtitle2">التقييم المتوسط</StyledTypography>
-                    <Box display="flex" alignItems="center">
+                    <Box display="flex" alignItems="center" justifyContent="flex-end" sx={{ mt: 2, textAlign: 'right', width: '100%' }}>
                       <Rating value={selectedProduct?.averageRating || 0} precision={0.5} readOnly sx={{ color: "#4caf50" }} />
                       <StyledTypography variant="body2" sx={{ ml: 1 }}>
                         ({selectedProduct?.numberOfRatings || 0} تقييمات)

@@ -1,7 +1,7 @@
 //@ts-nocheck
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -17,6 +17,7 @@ import StorefrontIcon from "@mui/icons-material/Storefront";
 import PersonIcon from "@mui/icons-material/Person";
 
 const RegisterChoice: React.FC = () => {
+  const navigate = useNavigate();
   const choices = [
     {
       title: "أنا عميل",
@@ -31,6 +32,12 @@ const RegisterChoice: React.FC = () => {
       route: "/loginseller",
     },
   ];
+
+  useEffect(() => {
+    if (localStorage.getItem('user') || localStorage.getItem('token')) {
+      navigate('/Market');
+    }
+  }, [navigate]);
 
   return (
     <>

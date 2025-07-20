@@ -1,7 +1,7 @@
 
 //@ts-nocheck
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import loginAnimation from "../assets/User.json";
 import * as LucideIcons from "lucide-react";
 import { HelpCircle } from "lucide-react";
@@ -95,6 +95,12 @@ const Registerclient = () => {
   const [successMsg, setSuccessMsg] = useState("");
   const [serverError, setServerError] = useState("");
 
+  useEffect(() => {
+    if (localStorage.getItem('user') || localStorage.getItem('token')) {
+      navigate('/Market');
+    }
+  }, [navigate]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -131,10 +137,11 @@ const Registerclient = () => {
       });
       const data = await response.json();
       if (response.status === 201) {
-        setSuccessMsg(t.success);
-        console.log("✅ Registered user:", data.user);
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        window.dispatchEvent(new Event('user-login'));
+        setSuccessMsg(t.success);
+        console.log("✅ Registered user:", data.user);
         navigate("/Market");
         setFormData({ fullName: "", password: "", confirmPassword: "" });
       } else if (response.status === 400) {

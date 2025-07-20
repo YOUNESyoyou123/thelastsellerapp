@@ -135,6 +135,12 @@ const Register = () => {
     );
   }, []);
 
+  useEffect(() => {
+    if (localStorage.getItem('user') || localStorage.getItem('token')) {
+      navigate('/Market');
+    }
+  }, [navigate]);
+
   const toggleLang = () => setLang((prev) => (prev === "en" ? "ar" : "en"));
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +176,11 @@ const Register = () => {
       PhoneNumber: formData.phone,
       Email: formData.email,
       Password: formData.password,
-      Place: locationName,
+      Place: locationName
+        .toLowerCase()
+        .replace(/[éè]/g, "e")
+        .replace(/[àä]/g, "a")
+        .replace(/\s+/g, ""),
       Latitude: coords.latitude,
       Longitude: coords.longitude,
     };
@@ -186,6 +196,7 @@ const Register = () => {
       } else {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        window.dispatchEvent(new Event('user-login'));
         setSuccessMsg(t.success);
         console.log("✅ REGISTER SUCCESS:", data);
         navigate("/Market");

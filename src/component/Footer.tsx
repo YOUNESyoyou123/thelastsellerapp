@@ -68,12 +68,18 @@ const MobileFooter = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      if (stored) setRole(JSON.parse(stored).Role);
-    } catch {
-      /* ignore */
+    function updateRole() {
+      try {
+        const stored = localStorage.getItem("user");
+        if (stored) setRole(JSON.parse(stored).Role);
+        else setRole(null);
+      } catch {
+        setRole(null);
+      }
     }
+    updateRole();
+    window.addEventListener('storage', updateRole);
+    return () => window.removeEventListener('storage', updateRole);
   }, []);
 
   const tabs = [

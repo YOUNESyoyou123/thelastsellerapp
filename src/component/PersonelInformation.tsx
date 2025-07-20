@@ -33,6 +33,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Color palette
 const colors = {
@@ -190,11 +191,19 @@ const InfoItem = ({ icon, title, value }) => (
 );
 
 // Main Subcomponents
-const SettingsHeader = () => (
-  <Box sx={componentStyles.titleBox}>
+const SettingsHeader = ({ onSignOut }) => (
+  <Box sx={{ ...componentStyles.titleBox, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
     <StyledTypography variant="h4" sx={componentStyles.title}>
       معلوماتي
     </StyledTypography>
+    <Button
+      variant="outlined"
+      color="error"
+      sx={{ fontFamily: 'Janna', ml: 2 }}
+      onClick={onSignOut}
+    >
+      Sign Out
+    </Button>
   </Box>
 );
 
@@ -346,6 +355,7 @@ export default function Settings() {
   });
   const [userData, setUserData] = useState(null);
   const [openPersonalInfoDialog, setOpenPersonalInfoDialog] = useState(false);
+  const navigate = useNavigate();
 
   // Effects
   useEffect(() => {
@@ -386,6 +396,12 @@ export default function Settings() {
     }
   };
 
+  const handleSignOut = () => {
+    localStorage.clear();
+    navigate('/');
+    window.location.reload();
+  };
+
   // Render
   if (!userData) {
     return (
@@ -401,7 +417,7 @@ export default function Settings() {
     <Container maxWidth="sm" sx={componentStyles.container}>
       <style>{animations.fadeIn}</style>
       <style>{animations.fadeInBox}</style>
-      <SettingsHeader />
+      <SettingsHeader onSignOut={handleSignOut} />
       {userData.Role === "seller" && (
         <ShopStatusCard
           isShopOpen={isShopOpen}
