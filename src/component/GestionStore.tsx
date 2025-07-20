@@ -30,16 +30,23 @@ const styles = {
   container: {
     py: 4,
     px: { xs: 2, sm: 4 },
-    bgcolor: "#f9fafb",
+    bgcolor: "#f9fafb", 
     borderRadius: 2,
+    marginBottom: '60px', // Add margin to prevent footer overlap
+    minHeight: 'calc(100vh - 60px)', // Subtract footer height
+    overflowY: 'auto', // Enable vertical scrolling
   },
   title: {
     fontWeight: "bold",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "center", 
     alignItems: "center",
     gap: 1,
     color: "primary.main",
+    position: 'sticky', // Keep title visible
+    top: 0,
+    zIndex: 1,
+    backgroundColor: "#f9fafb",
   },
   card: {
     mb: 4,
@@ -59,6 +66,8 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     height: "100%",
+    maxHeight: '500px', // Limit card height
+    overflow: 'auto', // Enable scrolling within cards if needed
   },
   productImage: {
     width: "100%",
@@ -70,6 +79,7 @@ const styles = {
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
+    overflow: 'auto', // Enable content scrolling
   },
   button: {
     mt: 2,
