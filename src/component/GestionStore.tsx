@@ -1,7 +1,5 @@
 //@ts-nocheck
-
 import { useState, useEffect } from "react";
-
 import {
   Container,
   Typography,
@@ -18,8 +16,14 @@ import {
   Alert,
   InputAdornment,
 } from "@mui/material";
-import { Store, PhotoCamera, Add, Delete, Euro } from "@mui/icons-material";
-import EditIcon from "@mui/icons-material/Edit";
+import {
+  Store,
+  PhotoCamera,
+  Add,
+  Delete,
+  Euro,
+  Edit as EditIcon,
+} from "@mui/icons-material";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -30,44 +34,52 @@ const styles = {
   container: {
     py: 4,
     px: { xs: 2, sm: 4 },
-    bgcolor: "#f9fafb", 
+    bgcolor: "#f5f5f5",
     borderRadius: 2,
-    marginBottom: '60px', // Add margin to prevent footer overlap
-    minHeight: 'calc(100vh - 60px)', // Subtract footer height
-    overflowY: 'auto', // Enable vertical scrolling
+    marginBottom: "110px", // Increased marginBottom
+    paddingBottom: "110px", // Added paddingBottom
+    minHeight: "calc(100vh - 80px)", // Adjusted minHeight
+    overflowY: "auto",
+    fontFamily: "Janna, sans-serif",
   },
   title: {
     fontWeight: "bold",
     display: "flex",
-    justifyContent: "center", 
+    justifyContent: "center",
     alignItems: "center",
     gap: 1,
-    color: "primary.main",
-    position: 'sticky', // Keep title visible
+    color: "#4caf50",
+    position: "sticky",
     top: 0,
     zIndex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#f5f5f5",
+    fontFamily: "Janna, sans-serif",
   },
   card: {
     mb: 4,
     borderRadius: 3,
-    boxShadow: 3,
-    transition: "0.3s",
-    ":hover": { boxShadow: 6 },
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+    "&:hover": {
+      transform: "translateY(-5px)",
+      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+    },
+    backgroundColor: "#ffffff",
+    fontFamily: "Janna, sans-serif",
   },
   productCard: {
-    borderRadius: 2,
-    boxShadow: 2,
-    transition: "transform 0.2s, box-shadow 0.2s",
-    ":hover": {
+    borderRadius: 3,
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+    "&:hover": {
       transform: "translateY(-5px)",
-      boxShadow: 4,
+      boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
     },
     display: "flex",
     flexDirection: "column",
     height: "100%",
-    maxHeight: '500px', // Limit card height
-    overflow: 'auto', // Enable scrolling within cards if needed
+    backgroundColor: "#ffffff",
+    fontFamily: "Janna, sans-serif",
   },
   productImage: {
     width: "100%",
@@ -79,17 +91,41 @@ const styles = {
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
-    overflow: 'auto', // Enable content scrolling
+    overflow: "auto",
+    fontFamily: "Janna, sans-serif",
   },
   button: {
     mt: 2,
+    borderRadius: 2,
+    fontFamily: "Janna, sans-serif",
+    display: 'flex',
+    margin: '0 auto'
   },
   textField: {
     "& .MuiInputLabel-root": {
-      fontFamily: "Janna",
+      fontFamily: "Janna, sans-serif",
     },
     "& .MuiOutlinedInput-root": {
-      fontFamily: "Janna",
+      fontFamily: "Janna, sans-serif",
+      borderRadius: 2,
+      "& fieldset": {
+        borderColor: "#4caf50",
+      },
+      "&:hover fieldset": {
+        borderColor: "#4caf50",
+      },
+    },
+  },
+  chip: {
+    backgroundColor: "#4caf50",
+    color: "#ffffff",
+    fontFamily: "Janna, sans-serif",
+    fontWeight: "bold",
+  },
+  dialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: 3,
+      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
     },
   },
 };
@@ -111,7 +147,7 @@ const translations = {
     products: "Products",
     addProduct: "Add Product",
     productName: "Product Name *",
-    price: "Price (€) *",
+    price: "Price (DA) *",
     category: "Category",
     add: "Add Product",
     noProducts: "No products added",
@@ -123,7 +159,7 @@ const translations = {
     errorShopUpdate: "Error updating shop ❌",
     successProductAdd: "Product added successfully ✅",
     errorProductAdd: "Error adding product ❌",
-    successProductDelete: "Product deleted successfully ❌",
+    successProductDelete: "Product deleted successfully ✅",
     errorProductDelete: "Error deleting product ❌",
     successProductUpdate: "Product updated successfully ✅",
     errorProductUpdate: "Error updating product ❌",
@@ -131,7 +167,6 @@ const translations = {
   ar: {
     storeManagement: "إدارة المتجر",
     shopInfo: "معلومات المتجر",
-    basicInfo: "تكوين المعلومات الأساسية",
     shopName: "اسم المتجر *",
     address: "العنوان *",
     phone: "الهاتف",
@@ -143,7 +178,7 @@ const translations = {
     products: "المنتجات",
     addProduct: "إضافة منتج",
     productName: "اسم المنتج *",
-    price: "السعر (DA) *",
+    price: "السعر (دج) *",
     category: "الفئة",
     add: "إضافة المنتج",
     noProducts: "لم يتم إضافة أي منتجات",
@@ -155,7 +190,7 @@ const translations = {
     errorShopUpdate: "خطأ في تحديث المتجر ❌",
     successProductAdd: "تمت إضافة المنتج بنجاح ✅",
     errorProductAdd: "خطأ في إضافة المنتج ❌",
-    successProductDelete: "تم حذف المنتج بنجاح ❌",
+    successProductDelete: "تم حذف المنتج بنجاح ✅",
     errorProductDelete: "خطأ في حذف المنتج ❌",
     successProductUpdate: "تم تحديث المنتج بنجاح ✅",
     errorProductUpdate: "خطأ في تحديث المنتج ❌",
@@ -184,7 +219,6 @@ interface Product {
 export default function GestionStore() {
   const [lang, setLang] = useState<"en" | "ar">("ar");
   const t = translations[lang];
-
   const [shopInfo, setShopInfo] = useState<ShopInfo>({
     name: "",
     address: "",
@@ -206,6 +240,9 @@ export default function GestionStore() {
     message: "",
     severity: "success" as "success" | "error" | "info" | "warning",
   });
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
 
   const showSnackbar = (
     message: string,
@@ -263,10 +300,7 @@ export default function GestionStore() {
       if (response.ok) {
         setProducts(data);
       } else {
-        showSnackbar(
-          `${t.errorProductAdd}: ${data.message}`,
-          "error"
-        );
+        showSnackbar(`${t.errorProductAdd}: ${data.message}`, "error");
       }
     } catch (error) {
       console.error("Erreur fetch products:", error);
@@ -345,19 +379,22 @@ export default function GestionStore() {
       if (newProduct.ProductImage) {
         productImageUrl = await uploadToCloudinary(newProduct.ProductImage);
       }
-      const response = await fetch("https://backendsellerapp.onrender.com/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ProductName: newProduct.ProductName,
-          Price: Number(newProduct.Price),
-          Description: newProduct.Description,
-          ProductImage: productImageUrl,
-          IdresponsibleShop: seller._id,
-          category: newProduct.category,
-          ShopName: seller.ShopName,
-        }),
-      });
+      const response = await fetch(
+        "https://backendsellerapp.onrender.com/products",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ProductName: newProduct.ProductName,
+            Price: Number(newProduct.Price),
+            Description: newProduct.Description,
+            ProductImage: productImageUrl,
+            IdresponsibleShop: seller._id,
+            category: newProduct.category,
+            ShopName: seller.ShopName,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         showSnackbar(t.successProductAdd, "success");
@@ -380,9 +417,12 @@ export default function GestionStore() {
 
   const handleRemoveProduct = async (id: string) => {
     try {
-      const response = await fetch(`https://backendsellerapp.onrender.com/products/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://backendsellerapp.onrender.com/products/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (response.ok) {
         showSnackbar(t.successProductDelete, "info");
         fetchProducts();
@@ -395,10 +435,6 @@ export default function GestionStore() {
       showSnackbar("Erreur de connexion au serveur", "error");
     }
   };
-
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [newImageFile, setNewImageFile] = useState<File | null>(null);
 
   const handleEditClick = (product: Product) => {
     setEditingProduct({
@@ -450,45 +486,40 @@ export default function GestionStore() {
   };
 
   return (
-    <Container
-      maxWidth="lg"
-      sx={{
-        ...styles.container,
-        direction: lang === "ar" ? "rtl" : "ltr",
-        fontFamily: "Janna",
-      }}
-    >
+    <Container maxWidth="lg" sx={styles.container}>
       {/* Language toggle button */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
           variant="outlined"
           onClick={() => setLang(lang === "en" ? "ar" : "en")}
-          sx={{ fontFamily: "Janna" }}
+          sx={{
+            fontFamily: "Janna, sans-serif",
+            borderColor: "#4caf50",
+            color: "#4caf50",
+            "&:hover": {
+              borderColor: "#4caf50",
+              backgroundColor: "rgba(76, 175, 80, 0.04)",
+            },
+          }}
         >
           {lang === "en" ? "العربية" : "English"}
         </Button>
       </Box>
-
       {/* Header */}
-      <Typography
-        variant="h4"
-        align="center"
-        gutterBottom
-        sx={{
-          ...styles.title,
-          fontFamily: "Janna",
-        }}
-      >
-        <Store fontSize="large" />
+      <Typography variant="h4" align="center" gutterBottom sx={styles.title}>
+        <Store fontSize="large" sx={{ color: "#4caf50" }} />
         {t.storeManagement}
       </Typography>
-
       {/* Shop Info Card */}
       <Card sx={styles.card}>
         <CardHeader
           title={t.shopInfo}
           subheader={t.basicInfo}
-          sx={{ fontFamily: "Janna" }}
+          sx={{
+            backgroundColor: "#4caf50",
+            color: "#ffffff",
+            fontFamily: "Janna, sans-serif",
+          }}
         />
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -496,32 +527,44 @@ export default function GestionStore() {
               label={t.shopName}
               value={shopInfo.name}
               onChange={(e) => handleShopChange("name", e.target.value)}
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <TextField
               label={t.address}
               value={shopInfo.address}
               onChange={(e) => handleShopChange("address", e.target.value)}
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <TextField
               label={t.phone}
               value={shopInfo.phone}
               onChange={(e) => handleShopChange("phone", e.target.value)}
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <TextField
               label={t.email}
               type="email"
               value={shopInfo.email}
               onChange={(e) => handleShopChange("email", e.target.value)}
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <Button
               variant="outlined"
               component="label"
               startIcon={<PhotoCamera />}
-              sx={{ fontFamily: "Janna" }}
+              sx={{
+                fontFamily: "Janna, sans-serif",
+                borderColor: "#4caf50",
+                color: "#4caf50",
+                "&:hover": {
+                  borderColor: "#4caf50",
+                  backgroundColor: "rgba(76, 175, 80, 0.04)",
+                },
+              }}
             >
               {shopInfo.image ? t.changeImage : t.uploadImage}
               <input
@@ -546,7 +589,7 @@ export default function GestionStore() {
                   marginTop: 8,
                   borderRadius: 8,
                   maxHeight: 200,
-                  objectFit: "cover"
+                  objectFit: "cover",
                 }}
               />
             )}
@@ -556,29 +599,44 @@ export default function GestionStore() {
               rows={3}
               value={shopInfo.description}
               onChange={(e) => handleShopChange("description", e.target.value)}
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
           </Box>
           <Button
             onClick={sauvgardershoinfo}
             variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ ...styles.button, fontFamily: "Janna" }}
+            sx={{
+              mt: 2,
+              backgroundColor: "#4caf50",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#388e3c",
+              },
+              fontFamily: "Janna, sans-serif",
+              borderRadius: 2,
+              display: 'flex',
+              margin: '0 auto'
+            }}
           >
             {t.save}
           </Button>
         </CardContent>
       </Card>
-
       {/* Products Divider */}
       <Divider sx={{ my: 4 }}>
-        <Chip label={t.products} sx={{ fontFamily: "Janna" }} />
+        <Chip label={t.products} sx={styles.chip} />
       </Divider>
-
       {/* Add Product Card */}
       <Card sx={styles.card}>
-        <CardHeader title={t.addProduct} sx={{ fontFamily: "Janna" }} />
+        <CardHeader
+          title={t.addProduct}
+          sx={{
+            backgroundColor: "#4caf50",
+            color: "#ffffff",
+            fontFamily: "Janna, sans-serif",
+          }}
+        />
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
@@ -587,7 +645,8 @@ export default function GestionStore() {
               onChange={(e) =>
                 setNewProduct({ ...newProduct, ProductName: e.target.value })
               }
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <TextField
               label={t.price}
@@ -600,13 +659,12 @@ export default function GestionStore() {
                 })
               }
               InputProps={{
-                 startAdornment: (
-                     <InputAdornment position="start">
-                       DA
-                     </InputAdornment>
-                   )
-               }}
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+                startAdornment: (
+                  <InputAdornment position="start">DA</InputAdornment>
+                ),
+              }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <TextField
               label={t.category}
@@ -614,13 +672,22 @@ export default function GestionStore() {
               onChange={(e) =>
                 setNewProduct({ ...newProduct, category: e.target.value })
               }
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
             <Button
               variant="outlined"
               component="label"
               startIcon={<PhotoCamera />}
-              sx={{ fontFamily: "Janna" }}
+              sx={{
+                fontFamily: "Janna, sans-serif",
+                borderColor: "#4caf50",
+                color: "#4caf50",
+                "&:hover": {
+                  borderColor: "#4caf50",
+                  backgroundColor: "rgba(76, 175, 80, 0.04)",
+                },
+              }}
             >
               {newProduct.ProductImage ? t.changeImage : t.uploadImage}
               <input
@@ -641,20 +708,31 @@ export default function GestionStore() {
               onChange={(e) =>
                 setNewProduct({ ...newProduct, Description: e.target.value })
               }
-              sx={{ ...styles.textField, fontFamily: "Janna" }}
+              sx={styles.textField}
+              variant="outlined"
             />
           </Box>
           <Button
             onClick={handleAddProduct}
             variant="contained"
             startIcon={<Add />}
-            sx={{ ...styles.button, fontFamily: "Janna" }}
+            sx={{
+              mt: 2,
+              backgroundColor: "#4caf50",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#388e3c",
+              },
+              fontFamily: "Janna, sans-serif",
+              borderRadius: 2,
+              display: 'flex',
+              margin: '0 auto'
+            }}
           >
             {t.add}
           </Button>
         </CardContent>
       </Card>
-
       {/* Products Grid */}
       {products.length > 0 ? (
         <Box
@@ -675,25 +753,37 @@ export default function GestionStore() {
                 />
               )}
               <CardContent sx={styles.productContent}>
-                <Typography variant="h6" color="primary" fontWeight="bold" sx={{ fontFamily: "Janna" }}>
+                <Typography
+                  variant="h6"
+                  color="primary"
+                  fontWeight="bold"
+                  sx={{ fontFamily: "Janna, sans-serif" }}
+                >
                   {product.ProductName}
                 </Typography>
                 <Chip
-                  label={`${
-                    typeof product.Price === "number"
-                      ? product.Price.toFixed(2)
-                      : Number(product.Price).toFixed(2)
-                  } €`}
-                  color="primary"
-                  sx={{ my: 1, fontFamily: "Janna" }}
+                  label={`${Number(product.Price).toFixed(2)} دج`}
+                  sx={{
+                    my: 1,
+                    backgroundColor: "#4caf50",
+                    color: "#ffffff",
+                    fontFamily: "Janna, sans-serif",
+                  }}
                 />
                 {product.category && (
-                  <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "Janna" }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontFamily: "Janna, sans-serif" }}
+                  >
                     {t.category}: {product.category}
                   </Typography>
                 )}
                 {product.Description && (
-                  <Typography variant="body2" sx={{ mt: 1, fontFamily: "Janna" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 1, fontFamily: "Janna, sans-serif" }}
+                  >
                     {product.Description}
                   </Typography>
                 )}
@@ -702,17 +792,18 @@ export default function GestionStore() {
                 sx={{
                   p: 1,
                   display: "flex",
-                  justifyContent: "flex-end",
+                  justifyContent: "center",
                   gap: 1,
                   borderTop: "1px solid",
                   borderColor: "divider",
-                  mt: "auto"
+                  mt: "auto",
                 }}
               >
                 <IconButton
                   color="primary"
                   onClick={() => handleEditClick(product)}
                   aria-label={t.edit}
+                  sx={{ color: "#4caf50" }}
                 >
                   <EditIcon />
                 </IconButton>
@@ -728,22 +819,27 @@ export default function GestionStore() {
           ))}
         </Box>
       ) : (
-        <Typography align="center" color="text.secondary" mt={4} sx={{ fontFamily: "Janna" }}>
+        <Typography
+          align="center"
+          color="text.secondary"
+          mt={4}
+          sx={{ fontFamily: "Janna, sans-serif" }}
+        >
           {t.noProducts}
         </Typography>
       )}
-
       {/* Edit Product Dialog */}
       <Dialog
         open={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
+        sx={styles.dialog}
       >
-        <DialogTitle sx={{ fontFamily: "Janna" }}>{t.editProduct}</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "Janna, sans-serif" }}>
+          {t.editProduct}
+        </DialogTitle>
         <DialogContent>
           {editingProduct && (
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
-            >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
               <TextField
                 label={t.productName}
                 value={editingProduct.ProductName}
@@ -755,7 +851,8 @@ export default function GestionStore() {
                 }
                 fullWidth
                 margin="normal"
-                sx={{ ...styles.textField, fontFamily: "Janna" }}
+                sx={styles.textField}
+                variant="outlined"
               />
               <TextField
                 label={t.price}
@@ -770,7 +867,8 @@ export default function GestionStore() {
                 InputProps={{ startAdornment: <Euro sx={{ mr: 1 }} /> }}
                 fullWidth
                 margin="normal"
-                sx={{ ...styles.textField, fontFamily: "Janna" }}
+                sx={styles.textField}
+                variant="outlined"
               />
               <TextField
                 label={t.category}
@@ -783,13 +881,23 @@ export default function GestionStore() {
                 }
                 fullWidth
                 margin="normal"
-                sx={{ ...styles.textField, fontFamily: "Janna" }}
+                sx={styles.textField}
+                variant="outlined"
               />
               <Button
                 variant="outlined"
                 component="label"
                 startIcon={<PhotoCamera />}
-                sx={{ mt: 1, fontFamily: "Janna" }}
+                sx={{
+                  mt: 1,
+                  fontFamily: "Janna, sans-serif",
+                  borderColor: "#4caf50",
+                  color: "#4caf50",
+                  "&:hover": {
+                    borderColor: "#4caf50",
+                    backgroundColor: "rgba(76, 175, 80, 0.04)",
+                  },
+                }}
               >
                 {newImageFile ? t.changeImage : t.uploadImage}
                 <input
@@ -815,26 +923,39 @@ export default function GestionStore() {
                 }
                 fullWidth
                 margin="normal"
-                sx={{ ...styles.textField, fontFamily: "Janna" }}
+                sx={styles.textField}
+                variant="outlined"
               />
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsEditDialogOpen(false)} sx={{ fontFamily: "Janna" }}>
+          <Button
+            onClick={() => setIsEditDialogOpen(false)}
+            sx={{
+              fontFamily: "Janna, sans-serif",
+              color: "#4caf50",
+            }}
+          >
             {t.cancel}
           </Button>
           <Button
             onClick={handleUpdateProduct}
             variant="contained"
-            color="primary"
-            sx={{ fontFamily: "Janna" }}
+            sx={{
+              backgroundColor: "#4caf50",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#388e3c",
+              },
+              fontFamily: "Janna, sans-serif",
+              borderRadius: 2,
+            }}
           >
             {t.saveChanges}
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
@@ -842,7 +963,10 @@ export default function GestionStore() {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity={snackbar.severity} sx={{ width: "100%", fontFamily: "Janna" }}>
+        <Alert
+          severity={snackbar.severity}
+          sx={{ width: "100%", fontFamily: "Janna, sans-serif" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

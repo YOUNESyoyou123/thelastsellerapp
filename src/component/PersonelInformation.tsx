@@ -1,5 +1,4 @@
 //@ts-nocheck
-
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -24,34 +23,73 @@ import {
   Alert,
   InputAdornment,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import PersonIcon from "@mui/icons-material/Person";
-import SecurityIcon from "@mui/icons-material/Security";
 import StoreIcon from "@mui/icons-material/Store";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { User } from "lucide-react";
 
-// Centralized styles object with improved organization
-const styles = {
+// Color palette
+const colors = {
+  primary: "#4caf50",
+  primaryDark: "#388e3c",
+  secondary: "#f50057",
+  background: "#f8f9fa",
+  hover: "rgba(0,0,0,0.03)",
+  textSecondary: "rgba(0, 0, 0, 0.6)",
+  error: "#f44336",
+  info: "#2196f3",
+  warning: "#ff9800",
+};
+
+// Animation keyframes
+const animations = {
+  fadeIn: `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) }
+      to { opacity: 1; transform: translateY(0) }
+    }
+  `,
+  fadeInBox: `
+    @keyframes fadeInBox {
+      from { opacity: 0; transform: scale(0.9) }
+      to { opacity: 1; transform: scale(1) }
+    }
+  `,
+};
+
+// Base styles
+const baseStyles = {
+  fontFamily: "Janna",
+  animation: "fadeIn 0.5s ease-in-out",
+};
+
+// Component-specific styles
+const componentStyles = {
   container: {
+    ...baseStyles,
     py: 4,
-    fontFamily: "Janna",
-    animation: "fadeIn 0.5s ease-in-out",
+  },
+  titleBox: {
+    backgroundColor: colors.primary,
+    color: "white",
+    p: 3,
+    borderRadius: 3,
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+    textAlign: "center",
+    mb: 4,
+    animation: "fadeInBox 0.5s ease-in-out",
   },
   title: {
+    ...baseStyles,
     fontWeight: "bold",
-    fontFamily: "Janna",
     fontSize: "2rem",
-    mb: 3,
-    color: "#4caf50",
+    color: "white",
   },
   shopCard: {
     p: 3,
@@ -59,7 +97,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    fontFamily: "Janna",
+    ...baseStyles,
     borderRadius: 2,
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
     transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
@@ -74,8 +112,8 @@ const styles = {
     position: "relative",
     borderRadius: 3,
     boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-    fontFamily: "Janna",
-    background: "linear-gradient(to bottom, #ffffff, #f8f9fa)",
+    ...baseStyles,
+    background: `linear-gradient(to bottom, #ffffff, ${colors.background})`,
     transition: "transform 0.3s ease",
     "&:hover": {
       transform: "scale(1.02)",
@@ -84,17 +122,17 @@ const styles = {
   listCard: {
     borderRadius: 3,
     boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-    fontFamily: "Janna",
+    ...baseStyles,
     "& .MuiListItem-root": {
       transition: "background-color 0.2s ease",
-      "&:hover": { backgroundColor: "rgba(0,0,0,0.03)" },
+      "&:hover": { backgroundColor: colors.hover },
     },
   },
   dialog: {
     title: {
-      bgcolor: "#4caf50",
+      bgcolor: colors.primary,
       color: "white",
-      fontFamily: "Janna",
+      ...baseStyles,
       py: 2,
       "& .MuiTypography-root": { fontSize: "1.25rem" },
     },
@@ -102,25 +140,10 @@ const styles = {
       pt: 3,
       pb: 3,
       px: 3,
-      fontFamily: "Janna",
+      ...baseStyles,
     },
     actions: {
       p: 2,
-    },
-  },
-  textField: {
-    fontFamily: "Janna",
-    marginBottom: 2,
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "rgba(0, 0, 0, 0.23)",
-      },
-      "&:hover fieldset": {
-        borderColor: "#4caf50",
-      },
-    },
-    "& .MuiInputLabel-root": {
-      fontFamily: "Janna",
     },
   },
   infoItem: {
@@ -133,47 +156,31 @@ const styles = {
     transition: "background-color 0.2s ease",
     "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
   },
-  infoIcon: { mr: 2, color: "#4caf50" },
-  button: {
-    fontFamily: "Janna",
-    borderRadius: 2,
+  infoIcon: {
+    mr: 2,
+    color: colors.primary,
   },
-  "@keyframes fadeIn": {
-    from: { opacity: 0, transform: "translateY(20px)" },
-    to: { opacity: 1, transform: "translateY(0)" },
+  button: {
+    ...baseStyles,
+    borderRadius: 2,
   },
 };
 
 // Common Components
-
-// StyledTypography component for consistent typography styling
 const StyledTypography = ({ variant, children, sx = {}, ...props }) => (
-  <Typography variant={variant} sx={{ fontFamily: "Janna", ...sx }} {...props}>
+  <Typography variant={variant} sx={{ ...baseStyles, ...sx }} {...props}>
     {children}
   </Typography>
 );
 
-// StyledButton component for consistent button styling
 const StyledButton = ({ children, sx = {}, ...props }) => (
-  <Button sx={{ fontFamily: "Janna", ...styles.button, ...sx }} {...props}>
+  <Button sx={{ ...componentStyles.button, ...sx }} {...props}>
     {children}
   </Button>
 );
 
-// StyledTextField component
-const StyledTextField = ({ label, sx = {}, ...props }) => (
-  <TextField
-    label={label}
-    sx={{ ...styles.textField, ...sx }}
-    InputLabelProps={{ style: { fontFamily: "Janna" } }}
-    InputProps={{ style: { fontFamily: "Janna" } }}
-    {...props}
-  />
-);
-
-// InfoItem component for consistent info display
 const InfoItem = ({ icon, title, value }) => (
-  <Box sx={styles.infoItem}>
+  <Box sx={componentStyles.infoItem}>
     {icon}
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
       <StyledTypography variant="subtitle2">{title}</StyledTypography>
@@ -183,17 +190,16 @@ const InfoItem = ({ icon, title, value }) => (
 );
 
 // Main Subcomponents
-
-// SettingsHeader component
 const SettingsHeader = () => (
-  <StyledTypography variant="h4" sx={styles.title} gutterBottom>
-    الإعدادات
-  </StyledTypography>
+  <Box sx={componentStyles.titleBox}>
+    <StyledTypography variant="h4" sx={componentStyles.title}>
+      معلوماتي
+    </StyledTypography>
+  </Box>
 );
 
-// ShopStatusCard component
 const ShopStatusCard = ({ isShopOpen, toggleShopStatus }) => (
-  <Card sx={styles.shopCard}>
+  <Card sx={componentStyles.shopCard}>
     <Box sx={{ flexGrow: 1 }}>
       <StyledTypography variant="h6">حالة المتجر</StyledTypography>
       <StyledTypography color="text.secondary">
@@ -205,18 +211,17 @@ const ShopStatusCard = ({ isShopOpen, toggleShopStatus }) => (
       onClick={toggleShopStatus}
       color={isShopOpen ? "success" : "error"}
       variant="outlined"
-      sx={{ borderColor: "#4caf50", color: "#4caf50" }}
+      sx={{ borderColor: colors.primary, color: colors.primary }}
     >
       {isShopOpen ? "إغلاق المتجر" : "فتح المتجر"}
     </StyledButton>
   </Card>
 );
 
-// UserProfileCard component
 const UserProfileCard = ({ userData }) => (
-  <Card sx={styles.userCard}>
+  <Card sx={componentStyles.userCard}>
     <User className="width-96 height-96 mx-auto mb-2" />
-    <IconButton color="success" sx={styles.iconButton}>
+    <IconButton color="success" sx={{ position: "absolute", top: 16, right: 16 }}>
       <CameraAltIcon />
     </IconButton>
     <StyledTypography variant="h6" fontWeight="600">
@@ -225,16 +230,15 @@ const UserProfileCard = ({ userData }) => (
     <Chip
       label={userData.Role === "seller" ? "بائع" : "عميل"}
       color={userData.Role === "seller" ? "primary" : "secondary"}
-      sx={{ mt: 1, fontFamily: "Janna" }}
+      sx={{ mt: 1, ...baseStyles }}
     />
   </Card>
 );
 
-// SettingsList component
-const SettingsList = ({ setOpenPersonalInfoDialog, setOpenSecurityDialog }) => (
-  <Card sx={styles.listCard}>
+const SettingsList = ({ setOpenPersonalInfoDialog }) => (
+  <Card sx={componentStyles.listCard}>
     <List disablePadding>
-      <ListItem button divider onClick={() => setOpenPersonalInfoDialog(true)} sx={styles.listItem}>
+      <ListItem button divider onClick={() => setOpenPersonalInfoDialog(true)}>
         <ListItemIcon>
           <PersonIcon color="success" />
         </ListItemIcon>
@@ -244,25 +248,23 @@ const SettingsList = ({ setOpenPersonalInfoDialog, setOpenSecurityDialog }) => (
         />
         <ChevronRightIcon color="action" />
       </ListItem>
-      
     </List>
   </Card>
 );
 
-// PersonalInfoDialog component
 const PersonalInfoDialog = ({ open, onClose, userData }) => (
   <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-    <DialogTitle sx={styles.dialog.title}>
+    <DialogTitle sx={componentStyles.dialog.title}>
       <Box display="flex" alignItems="center">
         <PersonIcon sx={{ mr: 1 }} />
         <StyledTypography variant="h6">المعلومات الشخصية</StyledTypography>
       </Box>
     </DialogTitle>
-    <DialogContent sx={styles.dialog.content}>
+    <DialogContent sx={componentStyles.dialog.content}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Box sx={{ ...styles.infoItem, justifyContent: "center", mb: 3 }}>
-            <PersonIcon sx={styles.infoIcon} />
+          <Box sx={{ ...componentStyles.infoItem, justifyContent: "center", mb: 3 }}>
+            <PersonIcon sx={componentStyles.infoIcon} />
             <StyledTypography variant="h5">{userData.FullName}</StyledTypography>
           </Box>
           <Divider sx={{ my: 2 }} />
@@ -271,28 +273,28 @@ const PersonalInfoDialog = ({ open, onClose, userData }) => (
           <>
             <Grid item xs={12} sm={6}>
               <InfoItem
-                icon={<StoreIcon sx={styles.infoIcon} />}
+                icon={<StoreIcon sx={componentStyles.infoIcon} />}
                 title="اسم المتجر"
                 value={userData.ShopName || "غير محدد"}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <InfoItem
-                icon={<EmailIcon sx={styles.infoIcon} />}
+                icon={<EmailIcon sx={componentStyles.infoIcon} />}
                 title="البريد الإلكتروني"
                 value={userData.Email || "غير محدد"}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <InfoItem
-                icon={<PhoneIcon sx={styles.infoIcon} />}
+                icon={<PhoneIcon sx={componentStyles.infoIcon} />}
                 title="الهاتف"
                 value={userData.PhoneNumber || "غير محدد"}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <InfoItem
-                icon={<LocationOnIcon sx={styles.infoIcon} />}
+                icon={<LocationOnIcon sx={componentStyles.infoIcon} />}
                 title="الموقع"
                 value={userData.Place || "غير محدد"}
               />
@@ -300,7 +302,7 @@ const PersonalInfoDialog = ({ open, onClose, userData }) => (
             {userData.description && (
               <Grid item xs={12}>
                 <InfoItem
-                  icon={<DescriptionIcon sx={styles.infoIcon} />}
+                  icon={<DescriptionIcon sx={componentStyles.infoIcon} />}
                   title="الوصف"
                   value={userData.description}
                 />
@@ -309,98 +311,23 @@ const PersonalInfoDialog = ({ open, onClose, userData }) => (
           </>
         )}
         <Grid item xs={12}>
-          <Box sx={styles.infoItem}>
-            <SecurityIcon sx={styles.infoIcon} />
+          <Box sx={componentStyles.infoItem}>
+            <PersonIcon sx={componentStyles.infoIcon} />
             <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
               <StyledTypography variant="subtitle2">الدور</StyledTypography>
               <Chip
                 label={userData.Role === "seller" ? "بائع" : "عميل"}
                 color={userData.Role === "seller" ? "primary" : "secondary"}
-                sx={{ fontFamily: "Janna", mt: 0.5 }}
+                sx={{ ...baseStyles, mt: 0.5 }}
               />
             </Box>
           </Box>
         </Grid>
       </Grid>
     </DialogContent>
-    <DialogActions sx={styles.dialog.actions}>
-      <StyledButton onClick={onClose} sx={{ color: "#4caf50" }}>
+    <DialogActions sx={componentStyles.dialog.actions}>
+      <StyledButton onClick={onClose} sx={{ color: colors.primary }}>
         إغلاق
-      </StyledButton>
-    </DialogActions>
-  </Dialog>
-);
-
-// SecurityDialog component
-const SecurityDialog = ({
-  open,
-  onClose,
-  passwordData,
-  passwordError,
-  showPassword,
-  setShowPassword,
-  handlePasswordChange,
-  handlePasswordSubmit,
-}) => (
-  <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-    <DialogTitle sx={{ fontFamily: "Janna" }}>تغيير كلمة المرور</DialogTitle>
-    <DialogContent sx={styles.dialog.content}>
-      {passwordError && (
-        <Alert severity="error" sx={{ mb: 2, fontFamily: "Janna" }}>
-          {passwordError}
-        </Alert>
-      )}
-      <StyledTextField
-        label="كلمة المرور الحالية"
-        type={showPassword ? "text" : "password"}
-        fullWidth
-        name="current"
-        value={passwordData.current}
-        onChange={handlePasswordChange}
-        margin="normal"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-      <StyledTextField
-        label="كلمة المرور الجديدة"
-        type={showPassword ? "text" : "password"}
-        fullWidth
-        name="new"
-        value={passwordData.new}
-        onChange={handlePasswordChange}
-        margin="normal"
-      />
-      <StyledTextField
-        label="تأكيد كلمة المرور الجديدة"
-        type={showPassword ? "text" : "password"}
-        fullWidth
-        name="confirm"
-        value={passwordData.confirm}
-        onChange={handlePasswordChange}
-        margin="normal"
-      />
-    </DialogContent>
-    <DialogActions sx={styles.dialog.actions}>
-      <StyledButton onClick={onClose} sx={{ color: "#4caf50" }}>
-        إلغاء
-      </StyledButton>
-      <StyledButton
-        onClick={handlePasswordSubmit}
-        variant="contained"
-        sx={{
-          bgcolor: "#4caf50",
-          "&:hover": { bgcolor: "#388e3c" },
-        }}
-        disabled={!passwordData.current || !passwordData.new || !passwordData.confirm}
-      >
-        حفظ
       </StyledButton>
     </DialogActions>
   </Dialog>
@@ -408,6 +335,7 @@ const SecurityDialog = ({
 
 // Main Settings component
 export default function Settings() {
+  // State management
   const [isShopOpen, setIsShopOpen] = useState(() => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -418,15 +346,8 @@ export default function Settings() {
   });
   const [userData, setUserData] = useState(null);
   const [openPersonalInfoDialog, setOpenPersonalInfoDialog] = useState(false);
-  const [openSecurityDialog, setOpenSecurityDialog] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    current: "",
-    new: "",
-    confirm: "",
-  });
-  const [passwordError, setPasswordError] = useState("");
 
+  // Effects
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -438,6 +359,7 @@ export default function Settings() {
     }
   }, []);
 
+  // Handlers
   const toggleShopStatus = async () => {
     const newStatus = !isShopOpen;
     try {
@@ -464,28 +386,10 @@ export default function Settings() {
     }
   };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handlePasswordSubmit = () => {
-    if (passwordData.new !== passwordData.confirm) {
-      setPasswordError("كلمات السر الجديدة غير متطابقة");
-      return;
-    }
-    if (passwordData.new.length < 6) {
-      setPasswordError("يجب أن يحتوي كلمة السر على 6 أحرف على الأقل");
-      return;
-    }
-    setPasswordError("");
-    setPasswordData({ current: "", new: "", confirm: "" });
-    setOpenSecurityDialog(false);
-  };
-
+  // Render
   if (!userData) {
     return (
-      <Container maxWidth="sm" sx={styles.container}>
+      <Container maxWidth="sm" sx={componentStyles.container}>
         <StyledTypography variant="h6">
           جاري تحميل بيانات المستخدم...
         </StyledTypography>
@@ -494,7 +398,9 @@ export default function Settings() {
   }
 
   return (
-    <Container maxWidth="sm" sx={styles.container}>
+    <Container maxWidth="sm" sx={componentStyles.container}>
+      <style>{animations.fadeIn}</style>
+      <style>{animations.fadeInBox}</style>
       <SettingsHeader />
       {userData.Role === "seller" && (
         <ShopStatusCard
@@ -506,23 +412,12 @@ export default function Settings() {
         <UserProfileCard userData={userData} />
         <SettingsList
           setOpenPersonalInfoDialog={setOpenPersonalInfoDialog}
-          setOpenSecurityDialog={setOpenSecurityDialog}
         />
       </Box>
       <PersonalInfoDialog
         open={openPersonalInfoDialog}
         onClose={() => setOpenPersonalInfoDialog(false)}
         userData={userData}
-      />
-      <SecurityDialog
-        open={openSecurityDialog}
-        onClose={() => setOpenSecurityDialog(false)}
-        passwordData={passwordData}
-        passwordError={passwordError}
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
-        handlePasswordChange={handlePasswordChange}
-        handlePasswordSubmit={handlePasswordSubmit}
       />
     </Container>
   );

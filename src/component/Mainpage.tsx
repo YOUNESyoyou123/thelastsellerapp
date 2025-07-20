@@ -1,36 +1,7 @@
 //@ts-nocheck
-
 import React, { useEffect, useState } from "react";
-import { SearchHeader } from "./SearchHeader";
-import { ProductCard } from "./ProductCardProps";
-import { CategoryFilter } from "./CategorieFilter";
-
-import { TextField, InputAdornment } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-
 import {
-  Store, // Icône de magasin
-  PhotoCamera,
-  Add,
-  Delete,
-  Euro,
-  Edit,
-  Star,
-  StarBorder,
-  ShoppingCart,
-  Phone as PhoneIcon,
-  LocationOn as LocationOnIcon,
-  Email as EmailIcon,
-  Description as DescriptionIcon,
-  Person as PersonIcon,
-  Security as SecurityIcon,
-  NotificationsActive as NotificationsActiveIcon,
-  ChevronRight as ChevronRightIcon,
-  CameraAlt as CameraAltIcon,
-} from "@mui/icons-material";
-
-import {
-  Box, // Ajouté ici
+  Box,
   Avatar,
   Typography,
   IconButton,
@@ -47,35 +18,47 @@ import {
   Chip,
   Rating,
   Paper,
-} from "@mui/material";
-import MobileFooter from "./Footer";
-import {
+  TextField,
+  InputAdornment,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
 } from "@mui/material";
+import {
+  Store,
+  Phone as PhoneIcon,
+  LocationOn as LocationOnIcon,
+  Email as EmailIcon,
+  Description as DescriptionIcon,
+  Person as PersonIcon,
+  Security as SecurityIcon,
+  NotificationsActive as NotificationsActiveIcon,
+  ChevronRight as ChevronRightIcon,
+  CameraAlt as CameraAltIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
+import MobileFooter from "./Footer";
 import SellerMap from "./SellerMap";
 
 const OPENCAGE_API_KEY = "5b93249038624a97bd48f83e49bea550";
+
 interface Product {
   _id: string;
   ProductName: string;
   Description?: string;
-  Price: string | number; // Selon votre schéma c'est string mais vous utilisez Number() dans le code
+  Price: string | number;
   ProductImage: string;
   ShopImage?: string;
   IdresponsibleShop: string;
-  Etoile?: number; // Champ existant dans votre schéma (peut être utilisé pour le rating)
-  numberEtoile?: number; // Champ existant dans votre schéma (peut être utilisé pour le rating)
+  Etoile?: number;
+  numberEtoile?: number;
   ShopName: string;
   category?: string;
-  // Champs de rating que vous utilisez dans votre backend
-  totalStars: number; // Somme de toutes les notes
-  numberOfRatings: number; // Nombre de votes
-  averageRating: number; // Note moyenne
-  // Champs timestamp automatiques
+  totalStars: number;
+  numberOfRatings: number;
+  averageRating: number;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }
@@ -84,6 +67,9 @@ interface Seller {
   _id: string;
   ShopName: string;
   Place: string;
+  PhoneNumber?: string;
+  Latitude?: number;
+  Longitude?: number;
 }
 
 interface ProductCardProps {
@@ -92,15 +78,210 @@ interface ProductCardProps {
   image: string;
   category?: string;
   shopName?: string;
-  ratingValue?: number; // averageRating
-  ratingCount?: number; // numberOfRatings
+  ratingValue?: number;
+  ratingCount?: number;
 }
+
+// Styles
+const styles = {
+  fontFamily: "Janna, sans-serif",
+  container: {
+    mx: "auto",
+    px: 4,
+    py: 6,
+    marginBottom: "110px",
+    paddingBottom: "110px",
+  },
+  header: {
+    position: "sticky",
+    top: 0,
+    bgcolor: "background.paper",
+    backdropFilter: "blur(8px)",
+    borderBottom: "1px solid",
+    borderColor: "divider",
+    zIndex: 10,
+    py: 2,
+  },
+  headerContent: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 2,
+  },
+  title: {
+    fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontWeight: 700,
+    fontSize: "2.25rem", 
+    background: "linear-gradient(45deg,rgb(65, 194, 71) 30%,rgb(109, 242, 113) 90%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+    textFillColor: "transparent",
+    position: "relative",
+    display: "inline-block",
+    letterSpacing: "-0.5px",
+    textShadow: "1px 1px 1px rgba(0,0,0,0.1)",
+    padding: "4px 0",
+    margin: 0,
+    userSelect: "none"
+  },
+  locationInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: 1,
+    fontFamily: "Janna, sans-serif",
+    fontSize: "0.875rem",
+    color: "text.secondary",
+    transition: "all 0.3s ease-in-out",
+    marginTop: "13px", // Added margin from top
+    paddingTop: "4px", // Added padding from top
+    "&:hover": {
+      color: "primary.main",
+    },
+  },
+  locationIcon: {
+    animation: "bounce 1s infinite",
+    animationTimingFunction: "cubic-bezier(0.280, 0.840, 0.420, 1)",
+  },
+  searchBox: {
+    width: "100%",
+    maxWidth: 400,
+    mx: "auto",
+    my: 2,
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#fff",
+    },
+    background: "#fff",
+    borderRadius: "20px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    animation: "float 3s ease-in-out infinite",
+    "@keyframes float": {
+      "0%": {
+        transform: "translateY(0px)"
+      },
+      "50%": {
+        transform: "translateY(-5px)"
+      },
+      "100%": {
+        transform: "translateY(0px)"
+      }
+    },
+    "&:hover": {
+      animation: "none",
+      transform: "translateY(0)",
+      boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+      transition: "all 0.3s ease"
+    }
+  },
+  productGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      xs: "1fr",
+      sm: "repeat(2, 1fr)",
+      lg: "repeat(3, 1fr)",
+      xl: "repeat(4, 1fr)",
+    },
+    gap: 3,
+  },
+  productCard: {
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.03)",
+      boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
+    },
+    borderRadius: "16px",
+    overflow: "hidden",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    backgroundColor: "#fff",
+  },
+  productImage: {
+    width: "100%",
+    height: 200,
+    objectFit: "cover",
+    borderRadius: "16px 16px 0 0",
+  },
+  productContent: {
+    padding: 3,
+    textAlign: "center",
+  },
+  dialogTitle: {
+    bgcolor: "#4caf50",
+    color: "white",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    py: 2,
+  },
+  dialogContent: {
+    fontFamily: "Janna, sans-serif",
+  },
+  productInfo: {
+    p: 3,
+    borderRadius: 2,
+    width: "100%",
+    minHeight: "650px",
+    fontFamily: "Janna, sans-serif",
+    bgcolor: "#f8f9fa",
+  },
+  dialogActions: {
+    p: 3,
+    borderTop: "1px solid",
+    borderColor: "divider",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  categoryChip: {
+    backgroundColor: "#4caf50",
+    color: "white",
+    fontFamily: "Janna, sans-serif",
+    fontWeight: "bold",
+    borderRadius: "8px",
+  },
+  
+};
+
+// Components
+const StyledTypography = ({ variant, children, sx = {}, ...props }) => (
+  <Typography variant={variant} sx={{ fontFamily: "Janna, sans-serif", ...sx }} {...props}>
+    {children}
+  </Typography>
+);
+
+const ProductCard = ({ title, price, image, category, shopName, ratingValue, ratingCount }) => (
+  <Card sx={styles.productCard}>
+    <CardActionArea>
+      <Box sx={{ position: "relative" }}>
+        <img src={image || "/placeholder.svg"} alt={title} style={styles.productImage} />
+      </Box>
+      <CardContent sx={styles.productContent}>
+        <StyledTypography gutterBottom variant="h5" component="div" sx={{ fontWeight: "bold" }}>
+          {title}
+        </StyledTypography>
+        <StyledTypography variant="body2" color="text.secondary">
+          {shopName}
+        </StyledTypography>
+        <StyledTypography variant="body1" sx={{ fontWeight: "bold", mt: 1, color: "#4caf50" }}>
+          {price}
+        </StyledTypography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mt: 1 }}>
+          <Rating value={ratingValue} precision={0.5} readOnly sx={{ color: "#4caf50" }} />
+          <StyledTypography variant="caption" sx={{ ml: 1 }}>
+            ({ratingCount})
+          </StyledTypography>
+        </Box>
+        {category && (
+          <Chip label={category} sx={{ ...styles.categoryChip, mt: 1 }} />
+        )}
+      </CardContent>
+    </CardActionArea>
+  </Card>
+);
+
+// Main Component
 export default function Mainpage() {
-  const [coords, setCoords] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [locationName, setLocationName] = useState<string>("📡 Detecting...");
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationName, setLocationName] = useState<string>("📡 جاري الكشف...");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -108,13 +289,11 @@ export default function Mainpage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [sellerInfo, setSellerInfo] = useState<Seller | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [userRating, setUserRating] = useState<number | null>(null);
 
-  const submitRating = async (rating: number) => {
+  const submitRating = async (rating) => {
     try {
       if (!selectedProduct) return;
-
       const response = await fetch(
         `https://backendsellerapp.onrender.com/products/${selectedProduct._id}/rate`,
         {
@@ -125,19 +304,14 @@ export default function Mainpage() {
           body: JSON.stringify({ rating }),
         }
       );
-
       const data = await response.json();
-
       if (response.ok) {
-        // Mise à jour avec la structure plate (sans objet ratings)
         setSelectedProduct({
           ...selectedProduct,
           totalStars: data.totalStars,
           numberOfRatings: data.numberOfRatings,
           averageRating: data.averageRating,
         });
-
-        // Mise à jour de la liste des produits
         setProducts(
           products.map((p) =>
             p._id === selectedProduct._id
@@ -152,7 +326,7 @@ export default function Mainpage() {
         );
       }
     } catch (error) {
-      console.error("Erreur lors de l'envoi de la note:", error);
+      console.error("خطأ أثناء إرسال التقييم:", error);
     }
   };
 
@@ -163,50 +337,40 @@ export default function Mainpage() {
           product.ProductName.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-  const handleOpenDialog = async (product: Product) => {
+  const handleOpenDialog = async (product) => {
     setSelectedProduct(product);
     setOpenDialog(true);
-
     try {
       const res = await fetch(
         `https://backendsellerapp.onrender.com/sellers/${product.IdresponsibleShop}`
       );
-      const data: Seller = await res.json();
+      const data = await res.json();
       setSellerInfo(data);
     } catch (err) {
-      console.error("❌ Erreur seller", err);
+      console.error("❌ خطأ البائع", err);
     }
   };
 
-  /** ✅ Fetch produits en fonction de la ville détectée */
-  const fetchProductsByLocation = async (place: string) => {
+  const fetchProductsByLocation = async (place) => {
     try {
       setLoading(true);
       setErrorMsg("");
-
-      // 🔹 1. Chercher les vendeurs qui ont Place ~ place
       const sellersResponse = await fetch(
         `https://backendsellerapp.onrender.com/sellers/sell/nearby?place=${encodeURIComponent(
           place
         )}`
       );
-
       if (!sellersResponse.ok) {
         const errorData = await sellersResponse.json();
-        throw new Error(errorData.message || "Failed to fetch sellers");
+        throw new Error(errorData.message || "فشل في جلب البائعين");
       }
-
-      const sellers: Seller[] = await sellersResponse.json();
-      if (!Array.isArray(sellers))
-        throw new Error("Invalid sellers data format");
-
+      const sellers = await sellersResponse.json();
+      if (!Array.isArray(sellers)) throw new Error("تنسيق بيانات البائعين غير صالح");
       if (sellers.length === 0) {
         setProducts([]);
-        setErrorMsg("No sellers found in your area");
+        setErrorMsg("لم يتم العثور على بائعين في منطقتك");
         return;
       }
-
-      // 🔹 2. Charger les produits de ces vendeurs
       const sellerIds = sellers.map((seller) => seller._id);
       const productsResponse = await fetch(
         "https://backendsellerapp.onrender.com/products/bysellers",
@@ -216,61 +380,50 @@ export default function Mainpage() {
           body: JSON.stringify({ sellerIds }),
         }
       );
-
       if (!productsResponse.ok) {
         const errorData = await productsResponse.json();
-        throw new Error(errorData.message || "Failed to fetch products");
+        throw new Error(errorData.message || "فشل في جلب المنتجات");
       }
-
-      const products: Product[] = await productsResponse.json();
-      if (!Array.isArray(products))
-        throw new Error("Invalid products data format");
-
+      const products = await productsResponse.json();
+      if (!Array.isArray(products)) throw new Error("تنسيق بيانات المنتجات غير صالح");
       setProducts(products);
-    } catch (error: any) {
-      console.error("Error:", error);
-      setErrorMsg(error.message || "Failed to load data");
+    } catch (error) {
+      console.error("خطأ:", error);
+      setErrorMsg(error.message || "فشل في تحميل البيانات");
       setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
-  /** ✅ 1er effet : Détecte la position et récupère le nom de la ville */
   useEffect(() => {
     if (!navigator.geolocation) {
-      setErrorMsg("❌ Geolocation not supported.");
+      setErrorMsg("❌ الموقع الجغرافي غير مدعوم.");
       setLoading(false);
       return;
     }
-
     const watchId = navigator.geolocation.watchPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
         setCoords({ latitude, longitude });
-
         try {
-          // Appel OpenCage pour récupérer la ville
           const response = await fetch(
             `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
           );
           const data = await response.json();
-
           if (data.results?.length > 0) {
             const comp = data.results[0].components;
-            const city =
-              comp.city || comp.town || comp.village || "Unknown city";
-            const country = comp.country || "Unknown country";
+            const city = comp.city || comp.town || comp.village || "مدينة غير معروفة";
+            const country = comp.country || "دولة غير معروفة";
             const placeName = `${city}, ${country}`;
-
-            console.log("✅ Ville détectée :", placeName);
+            console.log("✅ المدينة المكتشفة:", placeName);
             setLocationName(placeName);
           } else {
-            setLocationName("Unknown location");
+            setLocationName("موقع غير معروف");
           }
         } catch (err) {
-          console.error("Error fetching location name:", err);
-          setErrorMsg("Error fetching location data");
+          console.error("خطأ في جلب اسم الموقع:", err);
+          setErrorMsg("خطأ في جلب بيانات الموقع");
           setLoading(false);
         }
       },
@@ -280,89 +433,84 @@ export default function Mainpage() {
       },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
     );
-
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  /** ✅ 2e effet : Lance la recherche des produits seulement quand on a une vraie ville */
   useEffect(() => {
-    if (
-      locationName !== "📡 Detecting..." &&
-      !locationName.startsWith("Unknown")
-    ) {
+    if (locationName !== "📡 جاري الكشف..." && !locationName.startsWith("موقع غير معروف")) {
       fetchProductsByLocation(locationName);
     }
   }, [locationName]);
 
   return (
     <>
-      {/* ✅ En-tête avec localisation */}
-      <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold">Marketplace</h1>
-          <div className="text-sm text-gray-600 flex items-center gap-2">
-            <span>📍</span>
-            {errorMsg ? errorMsg : locationName}
-          </div>
-        </div>
-        <div className="flex   items-center justify-center">
-          <Box sx={{ width: "100%", maxWidth: 400 }}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Search products..."
-              size="small"
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{
-                backgroundColor: "background.paper",
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
+      <Box sx={styles.header}>
+        <Container sx={styles.headerContent}>
+          <StyledTypography variant="h1" sx={styles.title}>
+            سوقي
+          </StyledTypography>
+          <Box sx={styles.locationInfo}>
+            <Box sx={styles.locationIcon}>📍</Box>
+            <StyledTypography variant="body2" sx={{ color: errorMsg ? "error.main" : "text.secondary" }}>
+              {errorMsg ? errorMsg : locationName}
+            </StyledTypography>
           </Box>
-        </div>
-      </div>
-
-      {/* ✅ Section produits */}
-      <div className="container mx-auto px-4 py-6">
+        </Container>
+        <Box sx={styles.searchBox}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="ابحث عن المنتجات..."
+            size="small"
+            inputProps={{
+              style: { fontFamily: 'Janna, sans-serif' }
+            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{
+              backgroundColor: "background.paper",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 40,
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+      </Box>
+      <Container sx={styles.container}>
         {loading ? (
-          <div className="flex justify-center py-8">
-            <p>Loading products near you...</p>
-          </div>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+            <StyledTypography variant="body1">جاري تحميل المنتجات بالقرب منك...</StyledTypography>
+          </Box>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <Box sx={styles.productGrid}>
             {filteredProducts.map((product) => (
-              <div onClick={() => handleOpenDialog(product)} key={product._id}>
+              <Box onClick={() => handleOpenDialog(product)} key={product._id}>
                 <ProductCard
                   title={product.ProductName}
-                  price={`$${Number(product.Price).toFixed(2)}`}
+                  price={`${Number(product.Price).toFixed(2)} دج`}
                   image={product.ProductImage || "/placeholder.svg"}
-                  category={product.category || "Unknown"}
-                  shopName={product.ShopName || "Unknown shop"}
-                  ratingValue={product.averageRating} // Utilise averageRating directement
-                  ratingCount={product.numberOfRatings} // Utilise numberOfRatings directement
+                  category={product.category || "غير معروف"}
+                  shopName={product.ShopName || "متجر غير معروف"}
+                  ratingValue={product.averageRating}
+                  ratingCount={product.numberOfRatings}
                 />
-              </div>
+              </Box>
             ))}
-          </div>
+          </Box>
         ) : (
-          <div className="flex justify-center py-8">
-            <p>
-              {searchTerm
-                ? "No matching products found"
-                : errorMsg || "No products found in your area"}
-            </p>
-          </div>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+            <StyledTypography variant="body1">
+              {searchTerm ? "لم يتم العثور على منتجات مطابقة" : errorMsg || "لم يتم العثور على منتجات في منطقتك"}
+            </StyledTypography>
+          </Box>
         )}
-      </div>
+      </Container>
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -376,112 +524,58 @@ export default function Mainpage() {
           },
         }}
       >
-        <DialogTitle
-          sx={{
-            bgcolor: "primary.main",
-            color: "white",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            py: 2,
-          }}
-        >
+        <DialogTitle sx={styles.dialogTitle}>
           <Box>
-            <Typography variant="h5" fontWeight="bold">
-              {selectedProduct?.ProductName || "Détails du produit"}
-            </Typography>
-            <Typography variant="subtitle1">
-              {sellerInfo?.ShopName || "Chargement..."}
-            </Typography>
+            <StyledTypography variant="h5" fontWeight="bold">
+              {selectedProduct?.ProductName || "تفاصيل المنتج"}
+            </StyledTypography>
+            <StyledTypography variant="subtitle1">
+              {sellerInfo?.ShopName || "جاري التحميل..."}
+            </StyledTypography>
           </Box>
-
-          <Rating
-            value={selectedProduct?.averageRating || 0}
-            readOnly
-            size="small"
-          />
-          <Typography variant="caption">
-            ({selectedProduct?.numberOfRatings || 0})
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Rating value={selectedProduct?.averageRating || 0} readOnly size="small" sx={{ color: "#4caf50" }} />
+            <StyledTypography variant="caption" sx={{ ml: 1 }}>
+              ({selectedProduct?.numberOfRatings || 0})
+            </StyledTypography>
+          </Box>
         </DialogTitle>
-
-        <DialogContent>
+        <DialogContent sx={styles.dialogContent}>
           {selectedProduct && (
-            <Grid container>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Box
-                  sx={{
-                    position: "relative",
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    boxShadow: 2,
-                    height: 250,
-                    width: "300px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    bgcolor: "grey.100",
-                  }}
-                >
+                <Box sx={styles.productImage}>
                   <img
                     src={selectedProduct.ProductImage}
                     alt={selectedProduct.ProductName}
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                    }}
+                    style={{ maxWidth: "100%", maxHeight: "100%" }}
                   />
                 </Box>
-
                 <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Description
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 4 }}>
-                    {selectedProduct.Description ||
-                      "Aucune description disponible"}
-                  </Typography>
+                  <StyledTypography variant="h6" gutterBottom>
+                    الوصف
+                  </StyledTypography>
+                  <StyledTypography variant="body1" sx={{ mb: 4 }}>
+                    {selectedProduct.Description || "لا يوجد وصف متاح"}
+                  </StyledTypography>
                 </Box>
               </Grid>
-
-              <Grid item xs={10} md={8}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 3,
-                    borderRadius: 2,
-                    width: "300px",
-                    minHeight: "650px",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    Informations du produit
-                  </Typography>
-
+              <Grid item xs={12} md={8}>
+                <Paper sx={styles.productInfo}>
+                  <StyledTypography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#4caf50" }}>
+                    معلومات المنتج
+                  </StyledTypography>
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2">Note moyenne</Typography>
+                    <StyledTypography variant="subtitle2">التقييم المتوسط</StyledTypography>
                     <Box display="flex" alignItems="center">
-                      {/* Note moyenne */}
-                      <Rating
-                        value={selectedProduct?.averageRating || 0} // Changé ratings?.averageRating -> averageRating
-                        precision={0.5}
-                        readOnly
-                      />
-                      <Typography variant="body2" sx={{ ml: 1 }}>
-                        ({selectedProduct?.numberOfRatings || 0} avis)
-                      </Typography>
+                      <Rating value={selectedProduct?.averageRating || 0} precision={0.5} readOnly sx={{ color: "#4caf50" }} />
+                      <StyledTypography variant="body2" sx={{ ml: 1 }}>
+                        ({selectedProduct?.numberOfRatings || 0} تقييمات)
+                      </StyledTypography>
                     </Box>
                   </Box>
-
-                  {/* Ajoutez ceci pour permettre aux utilisateurs de noter */}
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2">
-                      Donnez votre avis
-                    </Typography>
+                    <StyledTypography variant="subtitle2">قم بتقييم المنتج</StyledTypography>
                     <Rating
                       value={userRating}
                       onChange={(event, newValue) => {
@@ -490,63 +584,43 @@ export default function Mainpage() {
                           submitRating(newValue);
                         }
                       }}
+                      sx={{ color: "#4caf50" }}
                     />
                   </Box>
-
                   {selectedProduct.category && (
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2">Catégorie</Typography>
-                      <Chip
-                        label={selectedProduct.category}
-                        color="secondary"
-                        size="small"
-                      />
+                      <StyledTypography variant="subtitle2">الفئة</StyledTypography>
+                      <Chip label={selectedProduct.category} sx={styles.categoryChip} />
                     </Box>
                   )}
-
                   <Divider sx={{ my: 2 }} />
-
                   {sellerInfo && (
                     <>
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{ fontWeight: "bold", mt: 2 }}
-                      >
-                        Informations du vendeur
-                      </Typography>
-
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
-                      >
-                        <Store color="primary" sx={{ mr: 1 }} />
-                        <Typography>{sellerInfo.ShopName}</Typography>
+                      <StyledTypography variant="h6" gutterBottom sx={{ fontWeight: "bold", mt: 2, color: "#4caf50" }}>
+                        معلومات البائع
+                      </StyledTypography>
+                      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                        <Store color="primary" sx={{ mr: 1, color: "#4caf50" }} />
+                        <StyledTypography>{sellerInfo.ShopName}</StyledTypography>
                       </Box>
-
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
-                      >
-                        <PhoneIcon color="primary" sx={{ mr: 1 }} />
-                        <Typography>{sellerInfo.PhoneNumber}</Typography>
+                      {sellerInfo.PhoneNumber && (
+                        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                          <PhoneIcon color="primary" sx={{ mr: 1, color: "#4caf50" }} />
+                          <StyledTypography>{sellerInfo.PhoneNumber}</StyledTypography>
+                        </Box>
+                      )}
+                      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                        <LocationOnIcon color="primary" sx={{ mr: 1, color: "#4caf50" }} />
+                        <StyledTypography>{sellerInfo.Place}</StyledTypography>
                       </Box>
-
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
-                      >
-                        <LocationOnIcon color="primary" sx={{ mr: 1 }} />
-                        <Typography>{sellerInfo.Place}</Typography>
-                      </Box>
-
-                      <Box sx={{ mt: 3, height: 250 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          Localisation du vendeur
-                        </Typography>
-                        <SellerMap
-                          lat={sellerInfo.Latitude}
-                          lng={sellerInfo.Longitude}
-                          height="100%"
-                        />
-                      </Box>
+                      {sellerInfo.Latitude && sellerInfo.Longitude && (
+                        <Box sx={{ mt: 3, height: 250 }}>
+                          <StyledTypography variant="subtitle2" gutterBottom>
+                            موقع البائع
+                          </StyledTypography>
+                          <SellerMap lat={sellerInfo.Latitude} lng={sellerInfo.Longitude} height="100%" />
+                        </Box>
+                      )}
                     </>
                   )}
                 </Paper>
@@ -554,23 +628,9 @@ export default function Mainpage() {
             </Grid>
           )}
         </DialogContent>
-
-        <DialogActions
-          sx={{
-            p: 3,
-            borderTop: "1px solid",
-            borderColor: "divider",
-            display: "flex",
-            alignItems: "center", // ✅ équivalent Tailwind items-center
-            justifyContent: "center", // ✅ équivalent Tailwind justify-center
-          }}
-        >
-          <Button
-            onClick={() => setOpenDialog(false)}
-            variant="outlined"
-            sx={{ minWidth: "250px" }}
-          >
-            Fermer
+        <DialogActions sx={styles.dialogActions}>
+          <Button onClick={() => setOpenDialog(false)} variant="outlined" sx={{ minWidth: "250px", color: "#4caf50", borderColor: "#4caf50" }}>
+            إغلاق
           </Button>
         </DialogActions>
       </Dialog>
