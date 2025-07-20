@@ -448,14 +448,6 @@ export default function Mainpage() {
     }
   }, [locationName]);
 
-  useEffect(() => {
-    // Reload la page une seule fois à l'arrivée sur /Market
-    if (!window.location.hash.includes('reloaded')) {
-      window.location.hash = 'reloaded';
-      window.location.reload();
-    }
-  }, []);
-
   return (
     <>
       <Box sx={styles.header}>
