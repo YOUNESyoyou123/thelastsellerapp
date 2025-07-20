@@ -488,405 +488,70 @@ export default function GestionStore() {
   };
 
   return (
-    <Container maxWidth="lg" sx={styles.container}>
-      {/* Language toggle button */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-        <Button
-          variant="outlined"
-          onClick={() => setLang(lang === "en" ? "ar" : "en")}
-          sx={{
-            fontFamily: "Janna, sans-serif",
-            borderColor: "#4caf50",
-            color: "#4caf50",
-            "&:hover": {
+    <>
+      <Container maxWidth="lg" sx={styles.container}>
+        {/* Language toggle button */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setLang(lang === "en" ? "ar" : "en")}
+            sx={{
+              fontFamily: "Janna, sans-serif",
               borderColor: "#4caf50",
-              backgroundColor: "rgba(76, 175, 80, 0.04)",
-            },
-          }}
-        >
-          {lang === "en" ? "العربية" : "English"}
-        </Button>
-      </Box>
-      {/* Header */}
-      <Typography variant="h4" align="center" gutterBottom sx={styles.title}>
-        <Store fontSize="large" sx={{ color: "#4caf50" }} />
-        {t.storeManagement}
-      </Typography>
-      {/* Shop Info Card */}
-      <Card sx={styles.card}>
-        <CardHeader
-          title={t.shopInfo}
-          subheader={t.basicInfo}
-          sx={{
-            backgroundColor: "#4caf50",
-            color: "#ffffff",
-            fontFamily: "Janna, sans-serif",
-          }}
-        />
-        <CardContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              label={t.shopName}
-              value={shopInfo.name}
-              onChange={(e) => handleShopChange("name", e.target.value)}
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <TextField
-              label={t.address}
-              value={shopInfo.address}
-              onChange={(e) => handleShopChange("address", e.target.value)}
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <TextField
-              label={t.phone}
-              value={shopInfo.phone}
-              onChange={(e) => handleShopChange("phone", e.target.value)}
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <TextField
-              label={t.email}
-              type="email"
-              value={shopInfo.email}
-              onChange={(e) => handleShopChange("email", e.target.value)}
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <Button
-              variant="outlined"
-              component="label"
-              startIcon={<PhotoCamera />}
-              sx={{
-                fontFamily: "Janna, sans-serif",
-                borderColor: "#4caf50",
-                color: "#4caf50",
-                "&:hover": {
-                  borderColor: "#4caf50",
-                  backgroundColor: "rgba(76, 175, 80, 0.04)",
-                },
-              }}
-            >
-              {shopInfo.image ? t.changeImage : t.uploadImage}
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const url = await uploadToCloudinary(file);
-                    if (url) setShopInfo((p) => ({ ...p, image: url }));
-                  }
-                }}
-              />
-            </Button>
-            {shopInfo.image && (
-              <img
-                src={shopInfo.image}
-                alt="Preview"
-                style={{
-                  width: "100%",
-                  marginTop: 8,
-                  borderRadius: 8,
-                  maxHeight: 200,
-                  objectFit: "cover",
-                }}
-              />
-            )}
-            <TextField
-              label={t.description}
-              multiline
-              rows={3}
-              value={shopInfo.description}
-              onChange={(e) => handleShopChange("description", e.target.value)}
-              sx={styles.textField}
-              variant="outlined"
-            />
-          </Box>
-          <Button
-            onClick={sauvgardershoinfo}
-            variant="contained"
-            sx={{
-              mt: 2,
-              backgroundColor: "#4caf50",
-              color: "#ffffff",
+              color: "#4caf50",
               "&:hover": {
-                backgroundColor: "#388e3c",
+                borderColor: "#4caf50",
+                backgroundColor: "rgba(76, 175, 80, 0.04)",
               },
-              fontFamily: "Janna, sans-serif",
-              borderRadius: 2,
-              display: 'flex',
-              margin: '0 auto'
             }}
           >
-            {t.save}
+            {lang === "en" ? "العربية" : "English"}
           </Button>
-        </CardContent>
-      </Card>
-      {/* Products Divider */}
-      <Divider sx={{ my: 4 }}>
-        <Chip label={t.products} sx={styles.chip} />
-      </Divider>
-      {/* Add Product Card */}
-      <Card sx={styles.card}>
-        <CardHeader
-          title={t.addProduct}
-          sx={{
-            backgroundColor: "#4caf50",
-            color: "#ffffff",
-            fontFamily: "Janna, sans-serif",
-          }}
-        />
-        <CardContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              label={t.productName}
-              value={newProduct.ProductName}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, ProductName: e.target.value })
-              }
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <TextField
-              label={t.price}
-              type="number"
-              value={newProduct.Price || ""}
-              onChange={(e) =>
-                setNewProduct({
-                  ...newProduct,
-                  Price: parseFloat(e.target.value) || 0,
-                })
-              }
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">DA</InputAdornment>
-                ),
-              }}
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <TextField
-              label={t.category}
-              value={newProduct.category}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, category: e.target.value })
-              }
-              sx={styles.textField}
-              variant="outlined"
-            />
-            <Button
-              variant="outlined"
-              component="label"
-              startIcon={<PhotoCamera />}
-              sx={{
-                fontFamily: "Janna, sans-serif",
-                borderColor: "#4caf50",
-                color: "#4caf50",
-                "&:hover": {
-                  borderColor: "#4caf50",
-                  backgroundColor: "rgba(76, 175, 80, 0.04)",
-                },
-              }}
-            >
-              {newProduct.ProductImage ? t.changeImage : t.uploadImage}
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setNewProduct({ ...newProduct, ProductImage: file });
-                }}
-              />
-            </Button>
-            <TextField
-              label={t.description}
-              multiline
-              rows={3}
-              value={newProduct.Description}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, Description: e.target.value })
-              }
-              sx={styles.textField}
-              variant="outlined"
-            />
-          </Box>
-          <Button
-            onClick={handleAddProduct}
-            variant="contained"
-            startIcon={<Add />}
-            sx={{
-              mt: 2,
-              backgroundColor: "#4caf50",
-              color: "#ffffff",
-              "&:hover": {
-                backgroundColor: "#388e3c",
-              },
-              fontFamily: "Janna, sans-serif",
-              borderRadius: 2,
-              display: 'flex',
-              margin: '0 auto'
-            }}
-          >
-            {t.add}
-          </Button>
-        </CardContent>
-      </Card>
-      {/* Products Grid */}
-      {products.length > 0 ? (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 3,
-            mt: 2,
-          }}
-        >
-          {products.map((product) => (
-            <Card key={product._id} sx={styles.productCard}>
-              {product.ProductImage && (
-                <img
-                  src={product.ProductImage}
-                  alt={product.ProductName}
-                  style={styles.productImage}
-                />
-              )}
-              <CardContent sx={styles.productContent}>
-                <Typography
-                  variant="h6"
-                  color="primary"
-                  fontWeight="bold"
-                  sx={{ fontFamily: "Janna, sans-serif" }}
-                >
-                  {product.ProductName}
-                </Typography>
-                <Chip
-                  label={`${Number(product.Price).toFixed(2)} دج`}
-                  sx={{
-                    my: 1,
-                    backgroundColor: "#4caf50",
-                    color: "#ffffff",
-                    fontFamily: "Janna, sans-serif",
-                  }}
-                />
-                {product.category && (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ fontFamily: "Janna, sans-serif" }}
-                  >
-                    {t.category}: {product.category}
-                  </Typography>
-                )}
-                {product.Description && (
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 1, fontFamily: "Janna, sans-serif" }}
-                  >
-                    {product.Description}
-                  </Typography>
-                )}
-              </CardContent>
-              <Box
-                sx={{
-                  p: 1,
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 1,
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                  mt: "auto",
-                }}
-              >
-                <IconButton
-                  color="primary"
-                  onClick={() => handleEditClick(product)}
-                  aria-label={t.edit}
-                  sx={{ color: "#4caf50" }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={() => handleRemoveProduct(product._id)}
-                  aria-label="Delete"
-                >
-                  <Delete />
-                </IconButton>
-              </Box>
-            </Card>
-          ))}
         </Box>
-      ) : (
-        <Typography
-          align="center"
-          color="text.secondary"
-          mt={4}
-          sx={{ fontFamily: "Janna, sans-serif" }}
-        >
-          {t.noProducts}
+        {/* Header */}
+        <Typography variant="h4" align="center" gutterBottom sx={styles.title}>
+          <Store fontSize="large" sx={{ color: "#4caf50" }} />
+          {t.storeManagement}
         </Typography>
-      )
-      
-      
-      }
-      <div className="h-20" ></div>
-      {/* Edit Product Dialog */}
-      <Dialog
-        open={isEditDialogOpen}
-        onClose={() => setIsEditDialogOpen(false)}
-        sx={styles.dialog}
-      >
-        <DialogTitle sx={{ fontFamily: "Janna, sans-serif" }}>
-          {t.editProduct}
-        </DialogTitle>
-        <DialogContent>
-          {editingProduct && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
+        {/* Shop Info Card */}
+        <Card sx={styles.card}>
+          <CardHeader
+            title={t.shopInfo}
+            subheader={t.basicInfo}
+            sx={{
+              backgroundColor: "#4caf50",
+              color: "#ffffff",
+              fontFamily: "Janna, sans-serif",
+            }}
+          />
+          <CardContent>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <TextField
-                label={t.productName}
-                value={editingProduct.ProductName}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    ProductName: e.target.value,
-                  })
-                }
-                fullWidth
-                margin="normal"
+                label={t.shopName}
+                value={shopInfo.name}
+                onChange={(e) => handleShopChange("name", e.target.value)}
                 sx={styles.textField}
                 variant="outlined"
               />
               <TextField
-                label={t.price}
-                type="number"
-                value={editingProduct.Price}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    Price: Number(e.target.value),
-                  })
-                }
-                InputProps={{ startAdornment: <Euro sx={{ mr: 1 }} /> }}
-                fullWidth
-                margin="normal"
+                label={t.address}
+                value={shopInfo.address}
+                onChange={(e) => handleShopChange("address", e.target.value)}
                 sx={styles.textField}
                 variant="outlined"
               />
               <TextField
-                label={t.category}
-                value={editingProduct.category}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    category: e.target.value,
-                  })
-                }
-                fullWidth
-                margin="normal"
+                label={t.phone}
+                value={shopInfo.phone}
+                onChange={(e) => handleShopChange("phone", e.target.value)}
+                sx={styles.textField}
+                variant="outlined"
+              />
+              <TextField
+                label={t.email}
+                type="email"
+                value={shopInfo.email}
+                onChange={(e) => handleShopChange("email", e.target.value)}
                 sx={styles.textField}
                 variant="outlined"
               />
@@ -895,7 +560,6 @@ export default function GestionStore() {
                 component="label"
                 startIcon={<PhotoCamera />}
                 sx={{
-                  mt: 1,
                   fontFamily: "Janna, sans-serif",
                   borderColor: "#4caf50",
                   color: "#4caf50",
@@ -905,78 +569,413 @@ export default function GestionStore() {
                   },
                 }}
               >
-                {newImageFile ? t.changeImage : t.uploadImage}
+                {shopInfo.image ? t.changeImage : t.uploadImage}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = await uploadToCloudinary(file);
+                      if (url) setShopInfo((p) => ({ ...p, image: url }));
+                    }
+                  }}
+                />
+              </Button>
+              {shopInfo.image && (
+                <img
+                  src={shopInfo.image}
+                  alt="Preview"
+                  style={{
+                    width: "100%",
+                    marginTop: 8,
+                    borderRadius: 8,
+                    maxHeight: 200,
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+              <TextField
+                label={t.description}
+                multiline
+                rows={3}
+                value={shopInfo.description}
+                onChange={(e) => handleShopChange("description", e.target.value)}
+                sx={styles.textField}
+                variant="outlined"
+              />
+            </Box>
+            <Button
+              onClick={sauvgardershoinfo}
+              variant="contained"
+              sx={{
+                mt: 2,
+                backgroundColor: "#4caf50",
+                color: "#ffffff",
+                "&:hover": {
+                  backgroundColor: "#388e3c",
+                },
+                fontFamily: "Janna, sans-serif",
+                borderRadius: 2,
+                display: 'flex',
+                margin: '0 auto'
+              }}
+            >
+              {t.save}
+            </Button>
+          </CardContent>
+        </Card>
+        {/* Products Divider */}
+        <Divider sx={{ my: 4 }}>
+          <Chip label={t.products} sx={styles.chip} />
+        </Divider>
+        {/* Add Product Card */}
+        <Card sx={styles.card}>
+          <CardHeader
+            title={t.addProduct}
+            sx={{
+              backgroundColor: "#4caf50",
+              color: "#ffffff",
+              fontFamily: "Janna, sans-serif",
+            }}
+          />
+          <CardContent>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                label={t.productName}
+                value={newProduct.ProductName}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, ProductName: e.target.value })
+                }
+                sx={styles.textField}
+                variant="outlined"
+              />
+              <TextField
+                label={t.price}
+                type="number"
+                value={newProduct.Price || ""}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    Price: parseFloat(e.target.value) || 0,
+                  })
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">DA</InputAdornment>
+                  ),
+                }}
+                sx={styles.textField}
+                variant="outlined"
+              />
+              <TextField
+                label={t.category}
+                value={newProduct.category}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, category: e.target.value })
+                }
+                sx={styles.textField}
+                variant="outlined"
+              />
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<PhotoCamera />}
+                sx={{
+                  fontFamily: "Janna, sans-serif",
+                  borderColor: "#4caf50",
+                  color: "#4caf50",
+                  "&:hover": {
+                    borderColor: "#4caf50",
+                    backgroundColor: "rgba(76, 175, 80, 0.04)",
+                  },
+                }}
+              >
+                {newProduct.ProductImage ? t.changeImage : t.uploadImage}
                 <input
                   type="file"
                   hidden
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0] || null;
-                    setNewImageFile(file);
+                    setNewProduct({ ...newProduct, ProductImage: file });
                   }}
                 />
               </Button>
               <TextField
                 label={t.description}
                 multiline
-                rows={4}
-                value={editingProduct.Description}
+                rows={3}
+                value={newProduct.Description}
                 onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    Description: e.target.value,
-                  })
+                  setNewProduct({ ...newProduct, Description: e.target.value })
                 }
-                fullWidth
-                margin="normal"
                 sx={styles.textField}
                 variant="outlined"
               />
             </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setIsEditDialogOpen(false)}
+            <Button
+              onClick={handleAddProduct}
+              variant="contained"
+              startIcon={<Add />}
+              sx={{
+                mt: 2,
+                backgroundColor: "#4caf50",
+                color: "#ffffff",
+                "&:hover": {
+                  backgroundColor: "#388e3c",
+                },
+                fontFamily: "Janna, sans-serif",
+                borderRadius: 2,
+                display: 'flex',
+                margin: '0 auto'
+              }}
+            >
+              {t.add}
+            </Button>
+          </CardContent>
+        </Card>
+        {/* Products Grid */}
+        {products.length > 0 ? (
+          <Box
             sx={{
-              fontFamily: "Janna, sans-serif",
-              color: "#4caf50",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 3,
+              mt: 2,
             }}
           >
-            {t.cancel}
-          </Button>
-          <Button
-            onClick={handleUpdateProduct}
-            variant="contained"
-            sx={{
-              backgroundColor: "#4caf50",
-              color: "#ffffff",
-              "&:hover": {
-                backgroundColor: "#388e3c",
-              },
-              fontFamily: "Janna, sans-serif",
-              borderRadius: 2,
-            }}
+            {products.map((product) => (
+              <Card key={product._id} sx={styles.productCard}>
+                {product.ProductImage && (
+                  <img
+                    src={product.ProductImage}
+                    alt={product.ProductName}
+                    style={styles.productImage}
+                  />
+                )}
+                <CardContent sx={styles.productContent}>
+                  <Typography
+                    variant="h6"
+                    color="primary"
+                    fontWeight="bold"
+                    sx={{ fontFamily: "Janna, sans-serif" }}
+                  >
+                    {product.ProductName}
+                  </Typography>
+                  <Chip
+                    label={`${Number(product.Price).toFixed(2)} دج`}
+                    sx={{
+                      my: 1,
+                      backgroundColor: "#4caf50",
+                      color: "#ffffff",
+                      fontFamily: "Janna, sans-serif",
+                    }}
+                  />
+                  {product.category && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontFamily: "Janna, sans-serif" }}
+                    >
+                      {t.category}: {product.category}
+                    </Typography>
+                  )}
+                  {product.Description && (
+                    <Typography
+                      variant="body2"
+                      sx={{ mt: 1, fontFamily: "Janna, sans-serif" }}
+                    >
+                      {product.Description}
+                    </Typography>
+                  )}
+                </CardContent>
+                <Box
+                  sx={{
+                    p: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 1,
+                    borderTop: "1px solid",
+                    borderColor: "divider",
+                    mt: "auto",
+                  }}
+                >
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleEditClick(product)}
+                    aria-label={t.edit}
+                    sx={{ color: "#4caf50" }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveProduct(product._id)}
+                    aria-label="Delete"
+                  >
+                    <Delete />
+                  </IconButton>
+                </Box>
+              </Card>
+            ))}
+          </Box>
+        ) : (
+          <Typography
+            align="center"
+            color="text.secondary"
+            mt={4}
+            sx={{ fontFamily: "Janna, sans-serif" }}
           >
-            {t.saveChanges}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          sx={{ width: "100%", fontFamily: "Janna, sans-serif" }}
+            {t.noProducts}
+          </Typography>
+        )}
+        <div className="h-20" ></div>
+        {/* Edit Product Dialog */}
+        <Dialog
+          open={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          sx={styles.dialog}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <DialogTitle sx={{ fontFamily: "Janna, sans-serif" }}>
+            {t.editProduct}
+          </DialogTitle>
+          <DialogContent>
+            {editingProduct && (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
+                <TextField
+                  label={t.productName}
+                  value={editingProduct.ProductName}
+                  onChange={(e) =>
+                    setEditingProduct({
+                      ...editingProduct,
+                      ProductName: e.target.value,
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                  sx={styles.textField}
+                  variant="outlined"
+                />
+                <TextField
+                  label={t.price}
+                  type="number"
+                  value={editingProduct.Price}
+                  onChange={(e) =>
+                    setEditingProduct({
+                      ...editingProduct,
+                      Price: Number(e.target.value),
+                    })
+                  }
+                  InputProps={{ startAdornment: <Euro sx={{ mr: 1 }} /> }}
+                  fullWidth
+                  margin="normal"
+                  sx={styles.textField}
+                  variant="outlined"
+                />
+                <TextField
+                  label={t.category}
+                  value={editingProduct.category}
+                  onChange={(e) =>
+                    setEditingProduct({
+                      ...editingProduct,
+                      category: e.target.value,
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                  sx={styles.textField}
+                  variant="outlined"
+                />
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<PhotoCamera />}
+                  sx={{
+                    mt: 1,
+                    fontFamily: "Janna, sans-serif",
+                    borderColor: "#4caf50",
+                    color: "#4caf50",
+                    "&:hover": {
+                      borderColor: "#4caf50",
+                      backgroundColor: "rgba(76, 175, 80, 0.04)",
+                    },
+                  }}
+                >
+                  {newImageFile ? t.changeImage : t.uploadImage}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setNewImageFile(file);
+                    }}
+                  />
+                </Button>
+                <TextField
+                  label={t.description}
+                  multiline
+                  rows={4}
+                  value={editingProduct.Description}
+                  onChange={(e) =>
+                    setEditingProduct({
+                      ...editingProduct,
+                      Description: e.target.value,
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                  sx={styles.textField}
+                  variant="outlined"
+                />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setIsEditDialogOpen(false)}
+              sx={{
+                fontFamily: "Janna, sans-serif",
+                color: "#4caf50",
+              }}
+            >
+              {t.cancel}
+            </Button>
+            <Button
+              onClick={handleUpdateProduct}
+              variant="contained"
+              sx={{
+                backgroundColor: "#4caf50",
+                color: "#ffffff",
+                "&:hover": {
+                  backgroundColor: "#388e3c",
+                },
+                fontFamily: "Janna, sans-serif",
+                borderRadius: 2,
+              }}
+            >
+              {t.saveChanges}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {/* Snackbar */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            severity={snackbar.severity}
+            sx={{ width: "100%", fontFamily: "Janna, sans-serif" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Container>
       <MobileFooter />
-    </Container>
+    </>
   );
 }
