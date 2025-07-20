@@ -41,6 +41,7 @@ import {
 } from "@mui/icons-material";
 import MobileFooter from "./Footer";
 import SellerMap from "./SellerMap";
+import { useLocation } from "react-router-dom";
 
 const OPENCAGE_API_KEY = "5b93249038624a97bd48f83e49bea550";
 
@@ -414,7 +415,7 @@ export default function Mainpage() {
         setCoords({ latitude, longitude });
         try {
           const response = await fetch(
-            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
+            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}&language=fr`
           );
           const data = await response.json();
           if (data.results?.length > 0) {
@@ -643,6 +644,7 @@ export default function Mainpage() {
           </Button>
         </DialogActions>
       </Dialog>
+      <MobileFooter />
     </>
   );
 }

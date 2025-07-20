@@ -113,7 +113,7 @@ const Register = () => {
         setCoords({ latitude, longitude });
         try {
           const res = await fetch(
-            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
+            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}&language=fr`
           );
           const data = await res.json();
           if (data.results?.length > 0) {
