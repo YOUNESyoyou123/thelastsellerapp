@@ -28,6 +28,8 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import { useAuth } from '../context/AuthContext';
+import MobileFooter from "./Footer";
 
 // Styles object
 const styles = {
@@ -975,6 +977,7 @@ export default function GestionStore() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <MobileFooter />
     </Container>
   );
 }

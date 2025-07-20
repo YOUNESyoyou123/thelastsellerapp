@@ -33,6 +33,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { User } from "lucide-react";
+import MobileFooter from "./Footer";
 import { useNavigate } from "react-router-dom";
 
 // Color palette
@@ -414,27 +415,30 @@ export default function Settings() {
   }
 
   return (
-    <Container maxWidth="sm" sx={componentStyles.container}>
-      <style>{animations.fadeIn}</style>
-      <style>{animations.fadeInBox}</style>
-      <SettingsHeader onSignOut={handleSignOut} />
-      {userData.Role === "seller" && (
-        <ShopStatusCard
-          isShopOpen={isShopOpen}
-          toggleShopStatus={toggleShopStatus}
+    <>
+      <Container maxWidth="sm" sx={componentStyles.container}>
+        <style>{animations.fadeIn}</style>
+        <style>{animations.fadeInBox}</style>
+        <SettingsHeader onSignOut={handleSignOut} />
+        {userData.Role === "seller" && (
+          <ShopStatusCard
+            isShopOpen={isShopOpen}
+            toggleShopStatus={toggleShopStatus}
+          />
+        )}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
+          <UserProfileCard userData={userData} />
+          <SettingsList
+            setOpenPersonalInfoDialog={setOpenPersonalInfoDialog}
+          />
+        </Box>
+        <PersonalInfoDialog
+          open={openPersonalInfoDialog}
+          onClose={() => setOpenPersonalInfoDialog(false)}
+          userData={userData}
         />
-      )}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
-        <UserProfileCard userData={userData} />
-        <SettingsList
-          setOpenPersonalInfoDialog={setOpenPersonalInfoDialog}
-        />
-      </Box>
-      <PersonalInfoDialog
-        open={openPersonalInfoDialog}
-        onClose={() => setOpenPersonalInfoDialog(false)}
-        userData={userData}
-      />
-    </Container>
+      </Container>
+      <MobileFooter />
+    </>
   );
 }
