@@ -28,7 +28,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import { useAuth } from '../context/AuthContext';
 
 // Styles object
 const styles = {
@@ -355,8 +354,7 @@ export default function GestionStore() {
       const data = await response.json();
       if (response.ok) {
         showSnackbar(t.successShopUpdate, "success");
-        setUser(data.user); // via le contexte
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify(data.user));
         window.dispatchEvent(new Event('user-login'));
       } else {
         showSnackbar(`${t.errorShopUpdate}: ${data.message}`, "error");
@@ -487,9 +485,6 @@ export default function GestionStore() {
       showSnackbar("Erreur de connexion au serveur", "error");
     }
   };
-
-  const { user } = useAuth();
-  const role = user?.Role;
 
   return (
     <Container maxWidth="lg" sx={styles.container}>
